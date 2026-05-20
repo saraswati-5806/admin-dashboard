@@ -1,117 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Analytics Dashboard - Job Portal</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Admin Analytics Dashboard</title>
+
+  <!-- CSS FILE -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- CHART.JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-    <div class="dashboard-container">
-        
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <h2>Job Portal</h2>
-            </div>
-            <nav class="sidebar-menu">
-                <a href="#" class="active">Dashboard</a>
-                <a href="#">Jobs</a>
-                <a href="#">Applicants</a>
-                <a href="#">Analytics</a>
-                <a href="#">Settings</a>
-            </nav>
-        </aside>
+  <div class="dashboard-container">
 
-        <div class="main-layout">
-            
-            <header class="navbar">
-                <h1>Analytics Dashboard</h1>
-                <div class="nav-profile">
-                    <span>Welcome, Admin</span>
-                    <button class="logout-btn">Logout</button>
-                </div>
-            </header>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-            <main class="content-wrapper">
-                
-                <section class="stat-cards-container">
-                    <div class="card">
-                        <h3>Total Jobs Posted</h3>
-                        <p id="total-jobs">0</p>
-                    </div>
-                    <div class="card">
-                        <h3>Total Applications</h3>
-                        <p id="total-apps">0</p>
-                    </div>
-                    <div class="card">
-                        <h3>Registered Users</h3>
-                        <p id="total-users">0</p>
-                    </div>
-                    <div class="card">
-                        <h3>Active Openings</h3>
-                        <p id="active-jobs">0</p>
-                    </div>
-                </section>
+      <div class="logo">
+        <h2>Job Portal</h2>
+      </div>
 
-                <div id="filter-wrapper" style="display: flex; gap: 10px; margin-bottom: -10px;">
-                    <input type="text" id="jobSearch" placeholder="Search by job title..." style="padding: 10px; width: 250px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.95rem;">
-                    <select id="categoryFilter" style="padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.95rem; background-color: white;">
-                        <option value="all">All Categories</option>
-                        <option value="IT">IT</option>
-                        <option value="Design">Design</option>
-                        <option value="Marketing">Marketing</option>
-                    </select>
-                </div>
+      <nav class="sidebar-nav">
+        <a href="#">Dashboard</a>
+        <a href="#">Jobs</a>
+        <a href="#">Applicants</a>
+        <a href="#">Analytics</a>
+        <a href="#">Settings</a>
+      </nav>
 
-                <section class="charts-container">
-                    <div class="chart-box">
-                        <h3>Applications per Job Listing</h3>
-                        <canvas id="applicationsChart"></canvas>
-                    </div>
-                    <div class="chart-box">
-                        <h3>Jobs distributed by Category</h3>
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </section>
+    </aside>
 
-                <section class="tables-container">
-                    <div class="table-box">
-                        <h3>Recent Job Listings</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Job ID</th>
-                                    <th>Job Title</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="jobs-table-body"></tbody>
-                        </table>
-                    </div>
+    <!-- MAIN SECTION -->
+    <div class="main-section">
 
-                    <div class="table-box">
-                        <h3>Recent Applicants</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Applicant Name</th>
-                                    <th>Applied For</th>
-                                    <th>Email ID</th>
-                                </tr>
-                            </thead>
-                            <tbody id="apps-table-body"></tbody>
-                        </table>
-                    </div>
-                </section>
+      <!-- TOP NAVBAR -->
+      <header class="navbar">
 
-            </main>
+        <div>
+          <h1>Admin Dashboard</h1>
         </div>
+
+        <div class="nav-right">
+          <button class="logout-btn">Logout</button>
+        </div>
+
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="content">
+
+        <!-- KPI CARDS -->
+        <section class="cards-container">
+
+          <div class="card">
+            <h3>Total Jobs</h3>
+            <p id="total-jobs">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Total Applications</h3>
+            <p id="total-applications">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Total Users</h3>
+            <p id="total-users">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Active Jobs</h3>
+            <p id="active-jobs">0</p>
+          </div>
+
+        </section>
+
+        <!-- CHARTS -->
+        <section class="charts-container">
+
+          <div class="chart-box">
+            <h2>Applications Per Job</h2>
+            <canvas id="applicationsChart"></canvas>
+          </div>
+
+          <div class="chart-box">
+            <h2>Jobs By Category</h2>
+            <canvas id="categoryChart"></canvas>
+          </div>
+
+        </section>
+
+        <!-- TABLES -->
+        <section class="tables-container">
+
+          <!-- JOBS TABLE -->
+          <div class="table-box">
+
+            <h2>Recent Jobs</h2>
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Job Title</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody id="jobs-table-body">
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <!-- APPLICATION TABLE -->
+          <div class="table-box">
+
+            <h2>Recent Applications</h2>
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Applied For</th>
+                </tr>
+              </thead>
+
+              <tbody id="applications-table-body">
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </main>
+
     </div>
 
-    <script src="script.js"></script>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script src="script.js"></script>
+
 </body>
 </html>
