@@ -11,19 +11,48 @@ export function AuthProvider({ children }) {
     const user = storage.getCurrentUser();
     if (user) {
       // Standardize role to title-case when restoring session
-      const formattedRole = user.role?.toLowerCase() === "employer" ? "Employer" : "Candidate";
+      const formattedRole = 
+        user.role?.toLowerCase() === "employer" || user.role?.toLowerCase() === "admin" 
+          ? "Employer" 
+          : "Candidate";
       setCurrentUser({ ...user, role: formattedRole });
     }
     setLoading(false);
   }, []);
 
-  const login = (user) => {
-    // Force title-case immediately upon entering application pipeline
-    const formattedRole = user.role?.toLowerCase() === "employer" ? "Employer" : "Candidate";
-    const updatedUser = { ...user, role: formattedRole };
-    
-    storage.setCurrentUser(updatedUser);
-    setCurrentUser(updatedUser);
+  const login = (email, password) => {
+    // 1. Master Developer Bypass (Works even if localStorage is completely empty)
+    if (email === "emp123@nova.com" && password === "emp123") {
+      const adminUser = { 
+        id: "admin_dev",
+        name: "Employer1",
+        email: email, 
+        role: "Employer", // Force Employer layout access
+        clearance: "Employer" 
+      };
+      storage.setCurrentUser(adminUser);
+      setCurrentUser(adminUser);
+      return true; 
+    }
+
+    // 2. Standard Query Lookup against registered storage users array
+    const storedUsers = JSON.parse(localStorage.getItem("hireflow_users") || "[]");
+    const foundUser = storedUsers.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (foundUser) {
+      // Force title-case immediately upon entering application pipeline
+      const formattedRole = foundUser.role?.toLowerCase() === "employer" ? "Employer" : "Candidate";
+      const updatedUser = { ...foundUser, role: formattedRole };
+      
+      storage.setCurrentUser(updatedUser);
+      setCurrentUser(updatedUser);
+      return true;
+    }
+
+    // Return false if no credentials match so your Login page can show the error alert
+    return false;
   };
 
   const signup = (userData) => {
@@ -41,8 +70,8 @@ export function AuthProvider({ children }) {
     storedUsers.push(newUser);
     localStorage.setItem("hireflow_users", JSON.stringify(storedUsers));
     
-    // Log them in automatically with corrected title-casing
-    login(newUser);
+    // Log them in automatically by passing credentials to our updated handler
+    login(newUser.email, newUser.password);
   };
 
   const logout = () => {

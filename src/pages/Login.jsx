@@ -9,39 +9,27 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    try {
-      setError("");
-
-      // 🔍 Read straight from local storage arrays
-      const storedUsers = JSON.parse(localStorage.getItem("hireflow_users") || "[]");
-
-      // Strict structural query lookup normalization
-      const matchedUser = storedUsers.find(
-        (u) => u.email.trim().toLowerCase() === email.trim().toLowerCase() && u.password === password
-      );
-
-      if (!matchedUser) {
-        setError("Invalid email address or matching security password parameters.");
-        return;
-      }
-
-      // Commit profile metrics safely into context trees
-      login(matchedUser);
-      navigate("/dashboard");
-
-    } catch (err) {
-      setError(err.message || "Failed to finalize authentication session routing.");
-    }
-  };
+  const handleLoginSubmit = (e) => {
+  e.preventDefault();
+  
+  // Call the updated login context function
+  const isSuccess = login(email, password); 
+  
+  if (isSuccess) {
+    // Redirect cleanly into your workspace hub dashboard layout!
+    navigate("/dashboard"); 
+  } else {
+    // Triggers your warning alert text component
+    setError("Invalid email address or matching security password parameters."); 
+  }
+};
 
   return (
     <div style={{ maxWidth: "400px", margin: "4rem auto", padding: "2rem", background: "#ffffff", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }} className="form">
       <h2 style={{ color: "#0f172a", marginBottom: "1.5rem" }}>Account Login</h2>
       {error && <p style={{ color: "#ef4444", fontSize: "0.9rem", margin: "0 0 1rem 0" }}>⚠️ {error}</p>}
       
-      <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <form onSubmit={handleLoginSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>
           <label style={{ display: "block", marginBottom: "0.25rem", color: "#475569" }}>Email Address</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: "100%", padding: "0.5rem", borderRadius: "4px", border: "1px solid #cbd5e1" }} />
