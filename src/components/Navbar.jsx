@@ -28,13 +28,12 @@ export default function Navbar() {
         {currentUser && (
           <>
             <Link to="/dashboard">Dashboard</Link>
+            <Link to="/admin" style={{ padding: '10px 15px', backgroundColor: '#2e6da4', color: 'white', borderRadius: '4px', textDecoration: 'none', fontWeight: 'bold' }}>
+              🔑 Go to Admin Dashboard
+            </Link>
             <button onClick={logout} className="logout-btn">Logout</button>
           </>
         )}
-
-        <Link to="/admin" style={{ padding: '10px', color: '#2e6da4', fontWeight: 'bold' }}>
-          💼 Admin Panel
-        </Link>
 
         {/* 🌓 Dark Mode Toggler */}
         <button
