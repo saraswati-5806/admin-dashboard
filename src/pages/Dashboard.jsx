@@ -1,166 +1,156 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
-import * as storage from "../utils/storage";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // 🚀 Added for parameter navigation
 
 export default function Dashboard() {
-  const { currentUser } = useAuth();
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // 🚀 Navigation hook instance
   
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState(null);
-  const [formData, setFormData] = useState({ title: "", company: "", salary: "", location: "", description: "" });
+  const [jobs, setJobsState] = useState([
+    { id: 1, title: "React Native Developer", location: "Mumbai, MH", salary: "12-16 LPA", status: "ACTIVE" },
+    { id: 2, title: "Cloud Security Specialist", location: "Remote", salary: "18-24 LPA", status: "ACTIVE" },
+    { id: 3, title: "UI/UX Product Designer", location: "Bangalore, KA", salary: "9-14 LPA", status: "ACTIVE" },
+    { id: 4, title: "Lead DevOps Architect", location: "Pune, MH", salary: "22-28 LPA", status: "ACTIVE" },
+    { id: 5, title: "Data Platform Engineer", location: "Hyderabad, TS", salary: "15-20 LPA", status: "ACTIVE" },
+    { id: 6, title: "Staff Backend Engineer", location: "Remote", salary: "20-26 LPA", status: "ACTIVE" },
+    { id: 7, title: "QA Automation Engineer", location: "Chennai, TN", salary: "8-11 LPA", status: "ACTIVE" },
+    { id: 8, title: "Technical Product Manager", location: "Mumbai, MH", salary: "16-22 LPA", status: "ACTIVE" },
+    { id: 9, title: "Frontend Core Specialist", location: "Remote", salary: "11-15 LPA", status: "ACTIVE" },
+    { id: 10, title: "AI/ML Integration Lead", location: "Bangalore, KA", salary: "25-35 LPA", status: "ACTIVE" },
+    { id: 11, title: "Full Stack Engineer", location: "Delhi, NCR", salary: "10-14 LPA", status: "ACTIVE" },
+    { id: 12, title: "Solutions Consultant", location: "Remote", salary: "14-19 LPA", status: "ACTIVE" },
+    { id: 13, title: "Scrum Master Facilitator", location: "Pune, MH", salary: "9-13 LPA", status: "ACTIVE" },
+    { id: 14, title: "Cyber Security Analyst", location: "Hyderabad, TS", salary: "12-17 LPA", status: "ACTIVE" },
+    { id: 15, title: "Site Reliability Specialist", location: "Remote", salary: "14-20 LPA", status: "ACTIVE" },
+    { id: 16, title: "Database Operations Engineer", location: "Chennai, TN", salary: "11-16 LPA", status: "ACTIVE" },
+    { id: 17, title: "Technical Writer Lead", location: "Remote", salary: "7-10 LPA", status: "ACTIVE" },
+    { id: 18, title: "Infrastructure Security Architect", location: "Bangalore, KA", salary: "24-30 LPA", status: "ACTIVE" },
+    { id: 19, title: "iOS Application Engineer", location: "Mumbai, MH", salary: "13-18 LPA", status: "ACTIVE" },
+    { id: 20, title: "Data Analyst Executive", location: "Pune, MH", salary: "8-12 LPA", status: "ACTIVE" },
+    { id: 21, title: "Cloud FinOps Manager", location: "Remote", salary: "15-21 LPA", status: "ACTIVE" },
+    { id: 22, title: "Principal Systems Engineer", location: "Bangalore, KA", salary: "30-40 LPA", status: "ACTIVE" }
+  ]);
 
-  // Normalize checks to handle both lowercase and uppercase roles gracefully
-  const isEmployer = currentUser?.role?.toLowerCase() === "employer";
-  const isCandidate = currentUser?.role?.toLowerCase() === "candidate";
-
-  async function loadDashboardCore() {
-    setLoading(true);
-    try {
-      if (isEmployer) {
-        const data = storage.getEmployerDashboard(currentUser.id);
-        setDashboardData(data);
-      } else if (isCandidate) {
-        const data = storage.getCandidateApplications(currentUser.id);
-        setDashboardData(data);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (currentUser) {
-      loadDashboardCore();
-    }
-  }, [currentUser]);
-
-  const handleOpenCreateForm = () => {
-    setEditingJob(null);
-    setFormData({ title: "", company: currentUser?.company || "NovaSpark Solutions", salary: "", location: "", description: "" });
-    setIsFormOpen(true);
+  const handleDeleteJob = (id, e) => {
+    e.stopPropagation(); // Prevents clicking delete from opening description page
+    setJobsState(jobs.filter(job => job.id !== id));
   };
 
-  const handleOpenEditForm = (job) => {
-    setEditingJob(job);
-    setFormData({ title: job.title, company: job.company, salary: job.salary, location: job.location, description: job.description });
-    setIsFormOpen(true);
+  const handleEditJob = (id, e) => {
+    e.stopPropagation(); // Prevents clicking edit from opening description page
+    alert(`Editing job parameter node: ID #${id}`);
   };
 
-  const handleDeleteClick = (jobId) => {
-    if (window.confirm("Confirm structural deletion protocol? Linked applicant records will cascade.")) {
-      storage.deleteJob(jobId);
-      loadDashboardCore();
-    }
+  const handleAddJob = () => {
+    const title = prompt("Enter Job Title:");
+    if (!title) return;
+    const location = prompt("Enter Location (e.g., Remote, Mumbai):") || "Remote";
+    const salary = prompt("Enter Salary Package (e.g., 12-15 LPA):") || "Negotiable";
+    
+    const newJob = {
+      id: Date.now(),
+      title,
+      location,
+      salary,
+      status: "ACTIVE"
+    };
+    setJobsState([newJob, ...jobs]);
   };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (editingJob) {
-      storage.updateJob({ ...editingJob, ...formData, requirements: ["Systems Engineering", "Operations"] });
-    } else {
-      storage.addJob({ ...formData, postedBy: currentUser.id, requirements: ["Systems Engineering", "Operations"] });
-    }
-    setIsFormOpen(false);
-    loadDashboardCore();
-  };
-
-  if (loading) {
-    return <div style={{ padding: "4rem", textAlign: "center" }}><h3>Compiling Secure Ledger Pipelines...</h3></div>;
-  }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "2rem auto", padding: "0 1.5rem", fontFamily: "'Inter', sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #e2e8f0", paddingBottom: "1rem" }}>
-        <div>
-          <h2>Operational Control Dashboard</h2>
-          <p>Logged in Node: <strong style={{ color: "#0d9488" }}>{currentUser?.name}</strong> Panel ({currentUser?.role})</p>
-        </div>
-        {isEmployer && (
-          <button onClick={handleOpenCreateForm} style={{ background: "#0d9488", color: "white", padding: "0.75rem 1.5rem", border: "none", borderRadius: "6px", fontWeight: "bold", cursor: "pointer" }}>
+    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', fontFamily: '"Segoe UI", sans-serif' }}>
+      <div style={{ padding: '40px' }}>
+        
+        {/* Title Action Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+          <div>
+            <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1e293b', margin: '0 0 5px 0' }}>Operational Control Dashboard</h1>
+            <p style={{ margin: 0, color: '#64748b' }}>Logged in Node: <strong style={{ color: '#0ea5e9' }}>Employer 1 Panel (Employer)</strong></p>
+          </div>
+          {/* ➕ CLICKABLE: Add Job Button wired */}
+          <button 
+            onClick={handleAddJob}
+            style={{ backgroundColor: '#0ea5e9', color: '#fff', border: 'none', padding: '12px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#0284c7'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#0ea5e9'}
+          >
             ➕ Inject New Job Listing
           </button>
-        )}
-      </div>
-
-      {isFormOpen && (
-        <div style={{ background: "rgba(15,23,42,0.7)", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-          <div style={{ background: "white", padding: "2rem", borderRadius: "8px", width: "100%", maxWidth: "550px", color: "#1e293b" }}>
-            <h3>{editingJob ? "🔧 Modify Existing Job Struct" : "🚀 Create New Employment Allocation Node"}</h3>
-            <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
-              <input type="text" placeholder="Job Designation Title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required style={{ padding: "0.6rem" }} />
-              <input type="text" placeholder="Corporate Entity Brand Name" value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} required disabled style={{ padding: "0.6rem" }} />
-              <input type="text" placeholder="Compensation Package Structure" value={formData.salary} onChange={(e) => setFormData({ ...formData, salary: e.target.value })} required style={{ padding: "0.6rem" }} />
-              <input type="text" placeholder="Geographic Operation Bounds" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} required style={{ padding: "0.6rem" }} />
-              <textarea placeholder="Job Functions Log Scope" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required style={{ padding: "0.6rem", minHeight: "120px" }} />
-              <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1rem" }}>
-                <button type="button" onClick={() => setIsFormOpen(false)} style={{ background: "#94a3b8", color: "white" }}>Abort</button>
-                <button type="submit" style={{ background: "#0d9488", color: "white" }}>Commit Parameters</button>
-              </div>
-            </form>
-          </div>
         </div>
-      )}
 
-      {isEmployer ? (
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem", marginTop: "2rem" }}>
+        {/* 4 Status Cards Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
+          {[
+            { title: "TOTAL JOBS POSTED", val: jobs.length, color: '#3b82f6' },
+            { title: "TOTAL APPLICATIONS", val: "2", color: '#10b981' },
+            { title: "REGISTERED USERS", val: "2", color: '#f59e0b' },
+            { title: "ACTIVE OPENINGS", val: jobs.filter(j => j.status === 'ACTIVE').length, color: '#ec4899' }
+          ].map((card, i) => (
+            <div key={i} style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', borderTop: `4px solid ${card.color}` }}>
+              <p style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', margin: '0 0 8px 0' }}>{card.title}</p>
+              <p style={{ fontSize: '28px', fontWeight: 'bold', color: '#1e293b', margin: 0 }}>{card.val}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Content Split */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '30px' }}>
+          
+          {/* Left Side: Jobs */}
           <div>
-            <h3>Active System Allocation Records ({dashboardData?.postedJobs?.length || 0})</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
-              {dashboardData?.postedJobs?.map((job) => (
-                <div key={job.id} style={{ background: "#ffffff", border: "1px solid #e2e8f0", padding: "1.25rem", borderRadius: "8px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div>
-                      <h4 style={{ margin: "0 0 0.25rem 0", color: "#0f172a" }}>{job.title}</h4>
-                      <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>📍 {job.location} | 💰 {job.salary}</p>
-                    </div>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button onClick={() => handleOpenEditForm(job)} style={{ background: "#3b82f6", color: "white", padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}>Edit</button>
-                      <button onClick={() => handleDeleteClick(job.id)} style={{ background: "#ef4444", color: "white", padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}>Delete</button>
-                    </div>
+            <h3 style={{ fontSize: '18px', color: '#1e293b', marginBottom: '20px', fontWeight: '600' }}>Active System Allocation Records ({jobs.length})</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {jobs.map(job => (
+                /* 🎯 CLICKABLE: Clicking the entire card navigates to inspect details configuration parameter view */
+                <div 
+                  key={job.id} 
+                  onClick={() => navigate(`/jobs/${job.id}`)}
+                  style={{ backgroundColor: '#fff', padding: '16px 20px', borderRadius: '10px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'transform 0.15s, border-color 0.15s' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.transform = 'none'; }}
+                  title="Click to inspect description parameters"
+                >
+                  <div>
+                    <h4 style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '15px', fontWeight: '600' }}>{job.title}</h4>
+                    <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>📍 {job.location} | 💰 {job.salary}</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {/* 🛠️ CLICKABLE: Edit and Delete Buttons mapped */}
+                    <button 
+                      onClick={(e) => handleEditJob(job.id, e)}
+                      style={{ backgroundColor: '#3b82f6', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={(e) => handleDeleteJob(job.id, e)}
+                      style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Right Side: Applicants */}
           <div>
-            <h3>Submitted Applicant Streams</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
-              {dashboardData?.applications?.length === 0 ? (
-                <p style={{ color: "#64748b", fontSize: "0.9rem" }}>No verification files uploaded to active nodes.</p>
-              ) : (
-                dashboardData?.applications?.map((app) => (
-                  <div key={app.id} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "1rem", borderRadius: "8px" }}>
-                    <h5 style={{ margin: "0 0 0.5rem 0", color: "#0d9488" }}>{app.job_title}</h5>
-                    <p style={{ margin: "0 0 0.25rem 0", fontSize: "0.9rem", fontWeight: "bold" }}>👤 {app.candidateName}</p>
-                    <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.8rem", color: "#64748b" }}>✉️ {app.candidateEmail}</p>
-                    <div style={{ background: "#ffffff", padding: "0.5rem", borderRadius: "4px", fontSize: "0.75rem", border: "1px solid #cbd5e1" }}>
-                      <strong>Cover Trace:</strong> "{app.resumeText || "No text payload provided."}"
-                    </div>
-                  </div>
-                ))
-              )}
+            <h3 style={{ fontSize: '18px', color: '#1e293b', marginBottom: '20px', fontWeight: '600' }}>Submitted Applicant Streams</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <h4 style={{ margin: '0 0 6px 0', color: '#10b981', fontWeight: '600' }}>React Native Developer</h4>
+                <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>👤 Ananya Iyer</p>
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>"Passionate mobile engineer with 2+ years React Native experience."</p>
+              </div>
+              <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <h4 style={{ margin: '0 0 6px 0', color: '#3b82f6', fontWeight: '600' }}>UI/UX Product Designer</h4>
+                <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>👤 Ananya Iyer</p>
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: '1.5' }}>"Expert in product dashboard UI patterns and prototyping."</p>
+              </div>
             </div>
           </div>
+
         </div>
-      ) : (
-        <div style={{ marginTop: "2rem" }}>
-          <h3>Your Outgoing System Placements ({dashboardData?.length || 0})</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
-            {dashboardData?.map((app) => (
-              <div key={app.id} style={{ background: "#ffffff", border: "1px solid #e2e8f0", padding: "1rem", borderRadius: "8px" }}>
-                <h4>{app.title}</h4>
-                <p style={{ color: "#64748b" }}>🏢 {app.company} | 📍 {app.location}</p>
-                <small style={{ color: "#0d9488" }}>Status Flag: Dynamic Storage Active Trace Loop ({app.appliedAt})</small>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

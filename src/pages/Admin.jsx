@@ -1,4 +1,6 @@
 import React from 'react';
+import React, { useState, useEffect } from 'react';
+
 import AdminDashboard from './AdminDashboard'; // Import the dashboard view with charts
 
 export default function Admin() {
@@ -36,3 +38,5 @@ useEffect(() => {
     localStorage.setItem("hireflow_applications", JSON.stringify(initialApplications));
   }
 }, []);
+
+export default Admin;

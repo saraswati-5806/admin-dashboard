@@ -5,10 +5,10 @@ import Home from "./pages/Home";
 import Jobs from "./pages/Jobs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import AdminDashboard from "./pages/AdminDashboard"; // 🛡️ Safely preserved original tracking view
+import AdminDashboard from "./pages/AdminDashboard"; 
 import Dashboard from "./pages/Dashboard";
-import JobDetail from "./pages/JobDetail"; // 🌟 Integrated dynamic job tracking view
-import Admin from "./pages/Admin";         // 🌟 Integrated admin dashboard interface view
+import JobDetail from "./pages/JobDetail"; 
+import Admin from "./pages/AdminDashboard";        
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -18,6 +18,7 @@ function AppContent() {
 
   return (
     <div className={darkMode ? "dark" : ""} style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* This renders once at the absolute top of every page layout */}
       <Navbar />
       
       <main style={{ flex: "1 0 auto" }}>
@@ -28,11 +29,8 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/admin" element={<Admin />} />
-          
-          {/* 🛡️ Safely preserved original admin route connection */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           
-          {/* 🛡️ Protected Workspaces Layout */}
           <Route 
             path="/dashboard" 
             element={
