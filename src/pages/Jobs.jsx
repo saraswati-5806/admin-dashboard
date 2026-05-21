@@ -11,12 +11,9 @@ export default function Jobs() {
     setJobs(storage.getJobs() || []);
   }, []);
 
-  // 🛡️ Fault-Tolerant Search Logic
   const filteredJobs = jobs.filter((j) => {
     const search = searchQuery.toLowerCase();
-    const matchesTitle = j.title?.toLowerCase().includes(search) || false;
-    const matchesCompany = j.company?.toLowerCase().includes(search) || false;
-    return matchesTitle || matchesCompany;
+    return j.title?.toLowerCase().includes(search) || j.company?.toLowerCase().includes(search);
   });
 
   return (
@@ -28,28 +25,42 @@ export default function Jobs() {
           placeholder="Filter by designation or corporate entity..." 
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ width: "100%", maxWidth: "400px" }}
+          style={{ width: "100%", maxWidth: "400px", padding: "0.6rem", borderRadius: "6px", border: "1px solid #cbd5e1" }}
         />
       </div>
 
-      {/* 🌟 Empty-State Condition Rendering Wrapper */}
       {filteredJobs.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#f8fafc", borderRadius: "8px", border: "2px dashed #cbd5e1" }} className="job-card">
+        <div style={{ textAlign: "center", padding: "5rem 2rem", background: "#f8fafc", borderRadius: "8px", border: "2px dashed #cbd5e1" }}>
           <h3>No Operational Paths Found</h3>
-          <p style={{ color: "#64748b" }}>No matching workspace allocations line up with query parameter: "{searchQuery}"</p>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
           {filteredJobs.map((job) => (
-            <div key={job.id} className="job-card" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div 
+              key={job.id} 
+              onClick={() => navigate(`/jobs/${job.id}`)} // ✨ Absolute Router navigation route string applied on card click
+              style={{ 
+                padding: "1.5rem", 
+                background: "#ffffff", 
+                border: "1px solid #e2e8f0", 
+                borderRadius: "8px", 
+                boxShadow: "0 4px 6px rgba(0,0,0,0.02)", 
+                cursor: "pointer", 
+                display: "flex", 
+                flexDirection: "column", 
+                justifyContent: "space-between",
+                transition: "transform 0.2s ease"
+              }}
+              className="job-card"
+            >
               <div>
                 <h3 style={{ margin: "0 0 0.5rem 0", color: "#0d9488" }}>{job.title}</h3>
-                <h5 style={{ margin: "0 0 1rem 0", opacity: 0.8 }}>🏢 {job.company}</h5>
+                <h5 style={{ margin: "0 0 1rem 0", color: "#475569" }}>🏢 {job.company}</h5>
                 <p style={{ fontSize: "0.9rem", color: "#64748b", margin: "0 0 1rem 0" }}>
                   {job.description?.substring(0, 100)}...
                 </p>
               </div>
-              <button onClick={() => navigate(`/jobs/${job.id}`)} style={{ width: "100%", marginTop: "auto" }}>
+              <button style={{ width: "100%", marginTop: "auto", background: "#0d9488", color: "#ffffff", border: "none", padding: "0.5rem", borderRadius: "4px", fontWeight: "bold" }}>
                 Inspect Parameters
               </button>
             </div>

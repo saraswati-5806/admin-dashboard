@@ -1,232 +1,164 @@
-// ==========================================================================
-// 📦 HIREFLOW SYSTEM ENGINE - BROWSER LOCALSTORAGE DATA LAYER (FIXED & SYNCHRONOUS)
-// ==========================================================================
+// ── STORAGE MANAGEMENT ENGINE ──
 
-const KEYS = {
-  JOBS: "hireflow_jobs",
-  APPLICATIONS: "hireflow_applications",
-  USERS: "users",
-  CURRENT_USER: "currentUser"
-};
+export function seedDemoData() {
+  if (localStorage.getItem("hireflow_seeded") === "true") return;
 
-function seedDatabase() {
-  if (typeof window === "undefined") return;
+  // 🔐 Mandated Core Testing Profile Metrics with lowercase role parameters
+  const coreEmployer = {
+    id: "user_emp_1",
+    name: "Employer 1",
+    email: "emp123@nova.com",
+    password: "emp123",
+    role: "employer",
+    company: "NovaSpark Solutions"
+  };
 
-  // 1. Initial Seed Matrix: 22 Full Professional Jobs
-  if (!localStorage.getItem(KEYS.JOBS)) {
-    const defaultJobs = [
-      { id: "j_1", title: "Senior Frontend Engineer", company: "AuraStream Tech", location: "Remote, India", type: "Full Time", salary: "₹18L - ₹24L", category: "Tech", description: "Build scalable UI architectures with modern core state tracking systems.", requirements: ["React", "TypeScript", "Tailwind CSS"], postedBy: "emp_infosys" },
-      { id: "j_2", title: "Data Analyst", company: "FinTech Solutions", location: "Mumbai, MH", type: "Full Time", salary: "₹12L - ₹18L", category: "Data", description: "Interpret complex core metric data frameworks and build pipeline dashboards.", requirements: ["Python", "SQL", "Tableau"], postedBy: "emp_infosys" },
-      { id: "j_3", title: "Product Designer", company: "Vertex Design", location: "Bangalore, KA", type: "Full Time", salary: "₹14L - ₹20L", category: "Design", description: "Own the end-to-end design lifecycle for our consumer fintech application matrix.", requirements: ["Figma", "Prototyping", "Wireframing"], postedBy: "emp_tata" },
-      { id: "j_4", title: "Operations Manager", company: "BioGrowth Labs", location: "Chicago, IL", type: "Full Time", salary: "$95k - $130k", category: "Management", description: "Oversee operational efficiency and lab deployment pipelines across regions.", requirements: ["Logistics", "Agile Management", "Budgets"], postedBy: "emp_tata" },
-      { id: "j_5", title: "Junior React Developer", company: "CloudScale Inc", location: "Remote", type: "Internship", salary: "₹35,000/mo", category: "Tech", description: "Assist engineering teams with component library migrations and structural unit verification.", requirements: ["React", "JavaScript", "CSS"], postedBy: "emp_infosys" },
-      { id: "j_6", title: "Backend Systems Architect", company: "Nexus Cyber", location: "Hyderabad, TS", type: "Full Time", salary: "₹25L - ₹35L", category: "Tech", description: "Design ultra-low-latency distributed data processing pipes.", requirements: ["Go", "Kubernetes", "gRPC"], postedBy: "emp_tata" },
-      { id: "j_7", title: "DevOps Pipeline Engineer", company: "Stratum Cloud", location: "Pune, MH", type: "Full Time", salary: "₹16L - ₹22L", category: "Tech", description: "Maintain automation runners, secure staging containers, and deploy microservices.", requirements: ["AWS", "Docker", "GitHub Actions"], postedBy: "emp_infosys" },
-      { id: "j_8", title: "HR Generalist", company: "TalentGrid Global", location: "Delhi NCR", type: "Full Time", salary: "₹6L - ₹9L", category: "HR", description: "Manage candidate lifecycles, payroll onboarding, and employee relations.", requirements: ["Communication", "Sourcing", "Onboarding"], postedBy: "emp_infosys" },
-      { id: "j_9", title: "Product Marketing Specialist", company: "Vivid Scale", location: "Remote", type: "Contract", salary: "₹8L - ₹12L", category: "Marketing", description: "Execute high-impact launch campaigns for native software services.", requirements: ["SEO", "Google Analytics", "Copywriting"], postedBy: "emp_tata" },
-      { id: "j_10", title: "iOS Mobile Engineer", company: "SwiftWave Apps", location: "Bangalore, KA", type: "Full Time", salary: "₹15L - ₹22L", category: "Tech", description: "Develop performance-optimized swift modules for live video consumer tools.", requirements: ["Swift", "SwiftUI", "CoreData"], postedBy: "emp_tata" },
-      { id: "j_11", title: "Customer Success Lead", company: "SaaSify Metrics", location: "Remote", type: "Full Time", salary: "₹10L - ₹14L", category: "Customer Support", description: "Manage enterprise account lifecycles, ensuring retention and driving renewal optimization.", requirements: ["CRM Software", "Negotiation", "Technical Support"], postedBy: "emp_infosys" },
-      { id: "j_12", title: "Sales Development Representative", company: "HyperGrowth CRM", location: "Mumbai, MH", type: "Full Time", salary: "₹5L - ₹8L", category: "Sales", description: "Identify outbound corporate leads and qualify active enterprise prospects.", requirements: ["Cold Outreach", "Lead Scoring", "HubSpot"], postedBy: "emp_infosys" },
-      { id: "j_13", title: "Machine Learning Researcher", company: "Cortex Intelligence", location: "Remote", type: "Full Time", salary: "₹30L - ₹45L", category: "Tech", description: "Train context-aware transformer models for multi-modal text classification.", requirements: ["PyTorch", "Transformers", "CUDA"], postedBy: "emp_tata" },
-      { id: "j_14", title: "QA Automation Tester", company: "Valid8 Software", location: "Chennai, TN", type: "Full Time", salary: "₹8L - ₹11L", category: "Tech", description: "Write robust end-to-end integration test runs for checkout pipelines.", requirements: ["Playwright", "Selenium", "Jest"], postedBy: "emp_infosys" },
-      { id: "j_15", title: "Scrum Master", company: "Agile Consulting Group", location: "Kolkata, WB", type: "Contract", salary: "₹14L - ₹18L", category: "Management", description: "Facilitate sprint planning, daily sync run-throughs, and clear systemic scope blocks.", requirements: ["Jira", "Agile Coaching", "Risk Mitigation"], postedBy: "emp_tata" },
-      { id: "j_16", title: "Full Stack Developer", company: "TechFlow", location: "Bangalore, KA", type: "Full Time", salary: "₹15L - ₹25L", category: "Tech", description: "Join our team to build scalable web applications using React and Node architectures.", requirements: ["React", "Node.js", "Express"], postedBy: "emp_techflow" },
-      { id: "j_17", title: "UI/UX Intern", company: "Pixel Studio", location: "Delhi, DL", type: "Internship", salary: "₹25,000/mo", category: "Design", description: "Collaborate closely with product managers to map layout systems and structural interface mockups.", requirements: ["Figma", "User Research"], postedBy: "emp_techflow" },
-      { id: "j_18", title: "Financial Risk Analyst", company: "Prism Capital", location: "Mumbai, MH", type: "Full Time", salary: "₹16L - ₹22L", category: "Other", description: "Evaluate macro portfolio credit exposures using quant risk metrics.", requirements: ["Excel VBA", "R", "Quantitative Modeling"], postedBy: "emp_tata" },
-      { id: "j_19", title: "Content Strategist", company: "WordCraft Media", location: "Remote", type: "Part-Time", salary: "₹4L - ₹6L", category: "Marketing", description: "Draft whitepapers, corporate newsletters, and optimization logs.", requirements: ["Technical Writing", "CMS", "SEO"], postedBy: "emp_infosys" },
-      { id: "j_20", title: "Full Stack Generalist", company: "Starlight Software", location: "Ahmedabad, GJ", type: "Full Time", salary: "₹10L - ₹15L", category: "Tech", description: "Maintain internal billing tools, configure state forms, and coordinate storage logic.", requirements: ["JavaScript", "React", "SQL"], postedBy: "emp_techflow" },
-      { id: "j_21", title: "Business Analyst", company: "Strategy Partners", location: "Pune, MH", type: "Full Time", salary: "₹11L - ₹15L", category: "Management", description: "Bridge the gap between product requirements and developer output metrics.", requirements: ["Agile Documentation", "SQL", "UML Modeling"], postedBy: "emp_tata" },
-      { id: "j_22", title: "Technical Support Tier 2", company: "Core Hosters", location: "Remote", type: "Full Time", salary: "₹6L - ₹8L", category: "Customer Support", description: "Investigate API communication drops, server runtime errors, and domain blocks.", requirements: ["Linux Shell", "DNS Configuration", "APIs"], postedBy: "emp_infosys" }
-    ];
-    localStorage.setItem(KEYS.JOBS, JSON.stringify(defaultJobs));
-  }
+  const candidateDemo = {
+    id: "user_cand_demo",
+    name: "Ananya Iyer",
+    email: "ananya@nova.com",
+    password: "demo123",
+    role: "candidate",
+    company: ""
+  };
 
-  if (!localStorage.getItem(KEYS.APPLICATIONS)) {
-    localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify([]));
-  }
+  // 💼 Generation Matrix: 22 Distinct Corporate Openings Linked to user_emp_1
+  const coreJobs = [
+    { id: "n_job_1", title: "React Native Developer", company: "NovaSpark Solutions", location: "Mumbai, MH", salary: "12-16 LPA", description: "Architect cross-platform mobile frameworks.", requirements: ["React Native", "TypeScript", "iOS Deployment"], postedBy: "user_emp_1" },
+    { id: "n_job_2", title: "Cloud Security Specialist", company: "NovaSpark Solutions", location: "Remote", salary: "18-24 LPA", description: "Design cloud native defensive barriers and secure edge architectures.", requirements: ["AWS", "IAM", "Kubernetes", "DevSecOps"], postedBy: "user_emp_1" },
+    { id: "n_job_3", title: "UI/UX Product Designer", company: "NovaSpark Solutions", location: "Bangalore, KA", salary: "9-14 LPA", description: "Map out workflow user journeys and premium high-fidelity systems panels.", requirements: ["Figma", "Design Systems", "Prototyping"], postedBy: "user_emp_1" },
+    { id: "n_job_4", title: "Lead DevOps Architect", company: "NovaSpark Solutions", location: "Pune, MH", salary: "22-28 LPA", description: "Maintain and orchestrate declarative serverless pipeline tracking channels.", requirements: ["Docker", "Terraform", "GitHub Actions"], postedBy: "user_emp_1" },
+    { id: "n_job_5", title: "Data Platform Engineer", company: "NovaSpark Solutions", location: "Hyderabad, TS", salary: "15-20 LPA", description: "Construct scalable real-time collection telemetry infrastructure logs.", requirements: ["Python", "Apache Kafka", "PostgreSQL"], postedBy: "user_emp_1" },
+    { id: "n_job_6", title: "Staff Backend Engineer", company: "NovaSpark Solutions", location: "Remote", salary: "20-26 LPA", description: "Optimize distributed thread systems execution architectures using Go.", requirements: ["Golang", "gRPC", "Redis Systems"], postedBy: "user_emp_1" },
+    { id: "n_job_7", title: "QA Automation Engineer", company: "NovaSpark Solutions", location: "Chennai, TN", salary: "8-11 LPA", description: "Write automated runtime execution assertions and performance diagnostics.", requirements: ["Playwright", "Jest", "CI/CD Matrix"], postedBy: "user_emp_1" },
+    { id: "n_job_8", title: "Technical Product Manager", company: "NovaSpark Solutions", location: "Mumbai, MH", salary: "16-22 LPA", description: "Coordinate delivery roadmaps with technical layout deployment targets.", requirements: ["Agile Lifecycle", "Jira", "System Scoping"], postedBy: "user_emp_1" },
+    { id: "n_job_9", title: "Frontend Core Specialist", company: "NovaSpark Solutions", location: "Remote", salary: "11-15 LPA", description: "Implement layout views optimizing accessibility tree structures.", requirements: ["Next.js", "TailwindCSS", "Web Vitals"], postedBy: "user_emp_1" },
+    { id: "n_job_10", title: "AI/ML Integration Lead", company: "NovaSpark Solutions", location: "Bangalore, KA", salary: "25-35 LPA", description: "Deploy vector token pipelines and custom data execution models.", requirements: ["PyTorch", "OpenAI API", "Vector Databases"], postedBy: "user_emp_1" },
+    { id: "n_job_11", title: "Full Stack Engineer", company: "NovaSpark Solutions", location: "Delhi, NCR", salary: "10-14 LPA", description: "Maintain internal administrative metrics and system data portals.", requirements: ["Node.js", "React.js", "MongoDB"], postedBy: "user_emp_1" },
+    { id: "n_job_12", title: "Solutions Consultant", company: "NovaSpark Solutions", location: "Remote", salary: "14-19 LPA", description: "Translate technical system layouts to corporate ecosystem customers.", requirements: ["System Architecture", "Client Relations"], postedBy: "user_emp_1" },
+    { id: "n_job_13", title: "Scrum Master Facilitator", company: "NovaSpark Solutions", location: "Pune, MH", salary: "9-13 LPA", description: "Unblock software engineering velocity metrics across vertical lines.", requirements: ["Scrum Framework", "Process Alignment"], postedBy: "user_emp_1" },
+    { id: "n_job_14", title: "Cyber Security Analyst", company: "NovaSpark Solutions", location: "Hyderabad, TS", salary: "12-17 LPA", description: "Perform active monitoring audits against internal routing channels.", requirements: ["SIEM Tools", "Network Scanning", "Linux"], postedBy: "user_emp_1" },
+    { id: "n_job_15", title: "Site Reliability Specialist", company: "NovaSpark Solutions", location: "Remote", salary: "19-25 LPA", description: "Maximize up-time thresholds across cloud infrastructure platforms.", requirements: ["Prometheus", "Grafana", "Linux Systems"], postedBy: "user_emp_1" },
+    { id: "n_job_16", title: "Database Operations Engineer", company: "NovaSpark Solutions", location: "Chennai, TN", salary: "11-16 LPA", description: "Tune query execution tables and query structural configurations.", requirements: ["MySQL Optimization", "NoSQL Clusters"], postedBy: "user_emp_1" },
+    { id: "n_job_17", title: "Technical Writer Lead", company: "NovaSpark Solutions", location: "Remote", salary: "7-10 LPA", description: "Author system documentation structures and developer API logs.", requirements: ["Markdown", "OpenAPI Spec", "GitDocs"], postedBy: "user_emp_1" },
+    { id: "n_job_18", title: "Infrastructure Security Architect", company: "NovaSpark Solutions", location: "Bangalore, KA", salary: "24-30 LPA", description: "Implement defensive structural policies on perimeter access frameworks.", requirements: ["Zero Trust", "Firewalls", "SAML SSO"], postedBy: "user_emp_1" },
+    { id: "n_job_19", title: "iOS Application Engineer", company: "NovaSpark Solutions", location: "Mumbai, MH", salary: "13-18 LPA", description: "Refine hardware performance profiles on native application loops.", requirements: ["SwiftUI", "CoreData", "XCode Profiling"], postedBy: "user_emp_1" },
+    { id: "n_job_20", title: "Data Analyst Executive", company: "NovaSpark Solutions", location: "Pune, MH", salary: "8-12 LPA", description: "Compile operational delivery metrics into structured reporting view fields.", requirements: ["SQL Queries", "Tableau", "Excel Data"], postedBy: "user_emp_1" },
+    { id: "n_job_21", title: "Cloud FinOps Manager", company: "NovaSpark Solutions", location: "Remote", salary: "15-21 LPA", description: "Audit and maximize efficiency metrics across infrastructure investments.", requirements: ["Cloud Cost Optimization", "Budget Allocation"], postedBy: "user_emp_1" },
+    { id: "n_job_22", title: "Principal Systems Engineer", company: "NovaSpark Solutions", location: "Bangalore, KA", salary: "30-40 LPA", description: "Design foundational operating systems blocks for the enterprise loop.", requirements: ["C++ Architecture", "Kernel Level Compilation"], postedBy: "user_emp_1" }
+  ];
+
+  const initialApps = [
+    { id: "app_mock_1", jobId: "n_job_1", candidateId: "user_cand_demo", candidateName: "Ananya Iyer", candidateEmail: "ananya@nova.com", resumeText: "Passionate mobile engineer with 2+ years React experience.", appliedAt: new Date().toLocaleDateString() },
+    { id: "app_mock_2", jobId: "n_job_3", candidateId: "user_cand_demo", candidateName: "Ananya Iyer", candidateEmail: "ananya@nova.com", resumeText: "Expert in product dashboard UI patterns and prototyping.", appliedAt: new Date().toLocaleDateString() }
+  ];
+
+  localStorage.setItem("hireflow_users", JSON.stringify([coreEmployer, candidateDemo]));
+  localStorage.setItem("hireflow_jobs", JSON.stringify(coreJobs));
+  localStorage.setItem("hireflow_applications", JSON.stringify(initialApps));
+  localStorage.setItem("hireflow_seeded", "true");
 }
 
-seedDatabase();
+export function getCurrentUser() {
+  const user = localStorage.getItem("currentUser");
+  return user ? JSON.parse(user) : null;
+}
 
-// 2. DATA READ INTERFACES (SYNCHRONOUS FIX)
+export function setCurrentUser(user) {
+  localStorage.setItem("currentUser", JSON.stringify(user));
+}
+
+export function clearCurrentUser() {
+  localStorage.removeItem("currentUser");
+}
+
 export function getJobs() {
-  try {
-    const data = localStorage.getItem(KEYS.JOBS);
-    return data ? JSON.parse(data) : [];
-  } catch (e) {
-    return [];
-  }
+  seedDemoData();
+  return JSON.parse(localStorage.getItem("hireflow_jobs") || "[]");
 }
 
-export function getJobById(id) {
+export function getJobById(jobId) {
   const jobs = getJobs();
-  return jobs.find(j => j.id === id) || null;
+  return jobs.find((j) => j.id === jobId) || null;
 }
 
-// 3. EMPLOYER WRITE/UPDATE/DELETE INTERFACES (Full CRUD - SYNCHRONOUS FIX)
 export function addJob(jobData) {
   const jobs = getJobs();
   const newJob = {
     ...jobData,
-    id: "j_" + Math.random().toString(36).substr(2, 9),
-    requirements: Array.isArray(jobData.requirements) ? jobData.requirements : ["React", "JavaScript"]
+    id: "job_" + Math.random().toString(36).substr(2, 9),
+    createdAt: new Date().toISOString()
   };
   jobs.push(newJob);
-  localStorage.setItem(KEYS.JOBS, JSON.stringify(jobs));
+  localStorage.setItem("hireflow_jobs", JSON.stringify(jobs));
   return newJob;
 }
 
 export function updateJob(updatedJob) {
-  const jobs = getJobs();
-  const index = jobs.findIndex(j => j.id === updatedJob.id);
-  if (index !== -1) {
-    jobs[index] = { ...jobs[index], ...updatedJob };
-    localStorage.setItem(KEYS.JOBS, JSON.stringify(jobs));
-    return true;
-  }
-  return false;
+  const jobs = getJobs().map((j) => (j.id === updatedJob.id ? updatedJob : j));
+  localStorage.setItem("hireflow_jobs", JSON.stringify(jobs));
 }
 
-export function deleteJob(id) {
-  const jobs = getJobs();
-  const filtered = jobs.filter(j => j.id !== id);
-  localStorage.setItem(KEYS.JOBS, JSON.stringify(filtered));
+export function deleteJob(jobId) {
+  const jobs = getJobs().filter((j) => j.id !== jobId);
+  localStorage.setItem("hireflow_jobs", JSON.stringify(jobs));
   
-  // Clean up orphan records from application registries
-  const apps = getApplications();
-  const filteredApps = apps.filter(a => a.jobId !== id);
-  localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(filteredApps));
-  return { success: true };
-}
-
-// 4. CANDIDATE SUBMISSION INTERFACES (SYNCHRONOUS FIX)
-export function addApplication(appData) {
-  const apps = getApplications();
-  const newApp = {
-    ...appData,
-    id: "app_" + Math.random().toString(36).substr(2, 9),
-    appliedAt: new Date().toLocaleDateString()
-  };
-  apps.push(newApp);
-  localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(apps));
-  return { success: true };
-}
-
-// 5. ROLE-SPECIFIC DASHBOARD COMPILING DATA (SYNCHRONOUS FIX)
-export function getEmployerDashboard(employerId) {
-  const jobs = getJobs();
-  const apps = getApplications();
-
-  const myJobs = jobs.filter(j => j.postedBy === employerId);
-  const myJobIds = myJobs.map(j => j.id);
-  const myApps = apps.filter(a => myJobIds.includes(a.jobId)).map(a => {
-    const jobMatch = myJobs.find(j => j.id === a.jobId);
-    return { ...a, job_title: jobMatch ? jobMatch.title : "Position" };
-  });
-
-  return { totalJobs: myJobs.length, totalApplications: myApps.length, applications: myApps };
-}
-
-export function getCandidateApplications(candidateId) {
-  const jobs = getJobs();
-  const apps = getApplications();
-  
-  const myApps = apps.filter(a => a.candidateId === candidateId);
-  return myApps.map(a => {
-    const jobMatch = jobs.find(j => j.id === a.jobId);
-    return {
-      ...a,
-      title: jobMatch ? jobMatch.title : "Position",
-      company: jobMatch ? jobMatch.company : "Corporate Organization",
-      location: jobMatch ? jobMatch.location : "Remote"
-    };
-  });
-}
-
-// 6. USER CHANNEL & PERSISTENCE LAYER CONTROLS (FULL WORKING IMPLEMENTATION)
-export function getUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(KEYS.USERS)) || [];
-  } catch (e) {
-    return [];
-  }
-}
-
-export function saveUsers(users) {
-  localStorage.setItem(KEYS.USERS, JSON.stringify(users));
-}
-
-export function getCurrentUser() {
-  try {
-    const user = localStorage.getItem(KEYS.CURRENT_USER);
-    return user ? JSON.parse(user) : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-export function setCurrentUser(user) { 
-  if (user) {
-    localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user)); 
-  } else {
-    localStorage.removeItem(KEYS.CURRENT_USER);
-  }
-}
-
-export function clearCurrentUser() { 
-  localStorage.removeItem(KEYS.CURRENT_USER); 
+  const apps = getApplications().filter((a) => a.jobId !== jobId);
+  localStorage.setItem("hireflow_applications", JSON.stringify(apps));
 }
 
 export function getApplications() {
-  try {
-    return JSON.parse(localStorage.getItem(KEYS.APPLICATIONS)) || [];
-  } catch (e) {
-    return [];
-  }
+  return JSON.parse(localStorage.getItem("hireflow_applications") || "[]");
 }
 
 export function getApplicationsByJob(jobId) {
   const apps = getApplications();
-  return apps.filter(app => app.jobId === jobId);
+  return apps.filter((a) => a.jobId === jobId);
 }
 
-export function getApplicationsByCandidate(candidateId) {
+export function addApplication(appData) {
   const apps = getApplications();
-  return apps.filter(app => app.candidateId === candidateId);
+  const newApp = { ...appData, id: "app_" + Math.random().toString(36).substr(2, 9), appliedAt: new Date().toLocaleDateString() };
+  apps.push(newApp);
+  localStorage.setItem("hireflow_applications", JSON.stringify(apps));
+  return newApp;
 }
 
-export function hasApplied(jobId, candidateId) {
-  const apps = getApplications();
-  return apps.some(app => app.jobId === jobId && app.candidateId === candidateId);
+export function getEmployerDashboard(employerId) {
+  const allJobs = getJobs();
+  const employerJobs = allJobs.filter((j) => j.postedBy === employerId);
+  const allApps = getApplications();
+
+  const employerJobIds = employerJobs.map((j) => j.id);
+  const filteredApps = allApps.filter((a) => employerJobIds.includes(a.jobId));
+
+  const structuredApps = filteredApps.map((a) => {
+    const matchJob = employerJobs.find((j) => j.id === a.jobId);
+    return {
+      ...a,
+      job_title: matchJob ? matchJob.title : "Corporate System Operations Node"
+    };
+  });
+
+  return {
+    totalJobs: employerJobs.length,
+    postedJobs: employerJobs,
+    applications: structuredApps
+  };
 }
 
-export function seedDemoData() {}
+export function getCandidateApplications(candidateId) {
+  const allApps = getApplications().filter((a) => a.candidateId === candidateId);
+  const allJobs = getJobs();
 
-/* ==========================================================================
-   🎨 INJECT CUSTOM "COOL WATERS" STYLE VARIABLES 
-   ========================================================================== */
-if (typeof document !== "undefined") {
-  const existing = document.querySelectorAll("style[data-theme='cool-waters']");
-  existing.forEach(e => e.remove());
-
-  const style = document.createElement("style");
-  style.setAttribute("data-theme", "cool-waters");
-  style.innerHTML = `
-    :root {
-      --primary-teal: #0d9488 !important;   
-      --dark-teal: #115e59 !important;      
-      --slate-dark: #0f172a !important;     
-      --ice-blue: #e0f2fe !important;       
-      --bg-canvas: #f8fafc !important;      
-    }
-    body { background-color: var(--bg-canvas) !important; color: var(--slate-dark) !important; font-family: 'Inter', sans-serif !important; }
-    nav, .navbar { background-color: var(--ice-blue) !important; border-bottom: 2px solid var(--primary-teal) !important; }
-    nav a, .navbar-brand, .nav-link { color: var(--dark-teal) !important; font-weight: 600 !important; }
-    nav a:hover { color: var(--primary-teal) !important; }
-    .btn, button, .btn-primary { background-color: var(--primary-teal) !important; border: none !important; color: white !important; font-weight: 600 !important; border-radius: 6px !important; padding: 0.5rem 1rem !important; cursor: pointer !important; }
-    .btn:hover, button:hover { background-color: var(--dark-teal) !important; }
-    input, select, textarea { border: 1px solid #cbd5e1 !important; border-radius: 6px !important; padding: 0.6rem !important; }
-    input:focus { outline: 2px solid var(--primary-teal) !important; }
-  `;
-  document.head.appendChild(style);
+  return allApps.map((a) => {
+    const associatedJob = allJobs.find((j) => j.id === a.jobId);
+    return {
+      id: a.id,
+      title: associatedJob ? associatedJob.title : "Archived Assignment",
+      company: associatedJob ? associatedJob.company : "NovaSpark Inc",
+      location: associatedJob ? associatedJob.location : "Remote Operations",
+      appliedAt: a.appliedAt
+    };
+  });
 }

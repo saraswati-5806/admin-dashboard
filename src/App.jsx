@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 import Jobs from "./pages/Jobs";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import AdminDashboard from "./pages/AdminDashboard"; 
+import AdminDashboard from "./pages/AdminDashboard"; // 🛡️ Safely preserved original tracking view
 import Dashboard from "./pages/Dashboard";
 import JobDetail from "./pages/JobDetail"; // 🌟 Integrated dynamic job tracking view
 import Admin from "./pages/Admin";         // 🌟 Integrated admin dashboard interface view
@@ -28,7 +28,10 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/admin" element={<Admin />} />
+          
+          {/* 🛡️ Safely preserved original admin route connection */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          
           {/* 🛡️ Protected Workspaces Layout */}
           <Route 
             path="/dashboard" 
