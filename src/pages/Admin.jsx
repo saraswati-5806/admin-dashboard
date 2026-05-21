@@ -1,3 +1,14 @@
+import React from 'react';
+import AdminDashboard from './AdminDashboard'; // Import the dashboard view with charts
+
+export default function Admin() {
+  return (
+    <div className="admin-page-wrapper">
+      <AdminDashboard />
+    </div>
+  );
+}
+
 // 1. Check for existing data, otherwise fall back to rich default mock profiles
 const initialJobs = JSON.parse(localStorage.getItem("hireflow_jobs")) || [
   { id: "job_1", title: "Frontend Engineer", department: "Engineering", applicationsCount: 12, status: "Active" },
@@ -12,8 +23,9 @@ const initialApplications = JSON.parse(localStorage.getItem("hireflow_applicatio
 ];
 
 // 2. Set your React state values using these fallback vectors
-const [jobs, setJobs] = useState(initialJobs);
+/*const [jobs, setJobs] = useState(initialJobs);
 const [applications, setApplications] = useState(initialApplications);
+*/
 
 // 3. Optional: Initialize storage so the values persist across reloads
 useEffect(() => {

@@ -5,8 +5,24 @@ import {
 
 export default function AdminDashboard() {
   // --- STATE MANAGEMENT ---
-  const [jobs, setJobs] = useState([]);
-  const [applications, setApplications] = useState([]);
+  // Add default state parameters directly in AdminDashboard.jsx so the charts have lines to plot
+const [jobs, setJobs] = useState(() => {
+  return JSON.parse(localStorage.getItem("hireflow_jobs")) || [
+    { id: "101", title: "Web Developer", category: "IT", applicationsCount: 2, status: "ACTIVE" },
+    { id: "102", title: "UI Designer", category: "Design", applicationsCount: 1, status: "ACTIVE" },
+    { id: "103", title: "Data Analyst", category: "IT", applicationsCount: 0, status: "CLOSED" },
+    { id: "104", title: "Marketing Manager", category: "Marketing", applicationsCount: 1, status: "ACTIVE" }
+  ];
+});
+
+const [applicants, setApplicants] = useState(() => {
+  return JSON.parse(localStorage.getItem("hireflow_applicants")) || [
+    { name: "Amit Sharma", appliedFor: "Web Developer", email: "amit@example.com" },
+    { name: "Priya Patel", appliedFor: "Web Developer", email: "priya@example.com" },
+    { name: "Rohan Das", appliedFor: "UI Designer", email: "rohan@example.com" },
+    { name: "Sneha Reddy", appliedFor: "Marketing Manager", email: "sneha@example.com" }
+  ];
+});
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
