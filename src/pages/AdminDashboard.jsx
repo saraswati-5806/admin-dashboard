@@ -13,51 +13,49 @@ import {
 } from 'recharts';
 
 export default function AdminDashboard() {
-  // --- 1. DATA SOURCING & STATE MANAGEMENT ---
+  // --- 1. STATE INITIALIZATION MATRIX ---
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [users, setUsers] = useState([]);
-  
-  // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
 
-  // Load Data safely from LocalStorage on component mount
+  // --- 2. MOUNT EFFECT LOGIC (MATCHED DIRECTLY TO YOUR NATIVE STRINGS) ---
   useEffect(() => {
-    const rawJobs = JSON.parse(localStorage.getItem('hireflow_jobs')) || [];
-    const rawApps = JSON.parse(localStorage.getItem('hireflow_applications')) || [];
-    const rawUsers = JSON.parse(localStorage.getItem('hireflow_users')) || [];
+    // Queries exact native system keys to synchronize data loops cleanly
+    const savedJobs = JSON.parse(localStorage.getItem('jobs')) || [];
+    const savedApps = JSON.parse(localStorage.getItem('applications')) || [];
+    const savedUsers = JSON.parse(localStorage.getItem('users')) || [];
 
-    setJobs(rawJobs);
-    setApplications(rawApps);
-    setUsers(rawUsers);
+    setJobs(savedJobs);
+    setApplications(savedApps);
+    setUsers(savedUsers);
   }, []);
 
-  // --- 2. SAFE DATA MUTATION MANAGERS (DELETE ACTIONS) ---
+  // --- 3. SECURE CARD DELETION ACTIONS ---
   const handleDeleteJob = (jobId) => {
-    // Filter out the job item securely
     const updatedJobs = jobs.filter((job, index) => {
       const currentId = job.id || (index + 1);
       return String(currentId) !== String(jobId);
     });
     
-    // Also remove applications tied to this specific job title to remain unified
     const jobToDelete = jobs.find((job, index) => String(job.id || (index + 1)) === String(jobId));
-    const deleteTitle = jobToDelete ? (jobToDelete.title || jobToDelete.designation || jobToDelete.role) : '';
+    const targetTitle = jobToDelete ? (jobToDelete.title || jobToDelete.designation || jobToDelete.role) : '';
     
     const updatedApps = applications.filter(app => {
       const appJobTitle = app.appliedFor || app.jobTitle || '';
-      return appJobTitle !== deleteTitle;
+      return appJobTitle.toLowerCase() !== targetTitle.toLowerCase();
     });
 
-    // Save states back down into localized storage variables instantly
     setJobs(updatedJobs);
     setApplications(updatedApps);
-    localStorage.setItem('hireflow_jobs', JSON.stringify(updatedJobs));
-    localStorage.setItem('hireflow_applications', JSON.stringify(updatedApps));
+    
+    // Save cleanly back to your native storage locations
+    localStorage.setItem('jobs', JSON.stringify(updatedJobs));
+    localStorage.setItem('applications', JSON.stringify(updatedApps));
   };
 
-  // --- 3. DYNAMIC METRIC COMPILER LOGIC ---
+  // --- 4. DATA METRIC SYNCHRONIZERS ---
   const totalJobsCount = jobs.length;
   const totalAppsCount = applications.length;
   const totalUsersCount = users.length;
@@ -66,10 +64,9 @@ export default function AdminDashboard() {
     return currentStatus === 'active' || currentStatus === 'open';
   }).length;
 
-  // Extract unique locations dynamically for search bar filter drop-downs
   const uniqueLocations = [...new Set(jobs.map(job => job.location || job.city || 'Remote').filter(Boolean))];
 
-  // --- 4. DATA FILTER MATCHING COMPILER ---
+  // --- 5. SEARCH FILTER STRINGS NORMALIZER ---
   const filteredJobs = jobs.filter(job => {
     const title = (job.title || job.designation || job.role || '').toLowerCase();
     const company = (job.company || '').toLowerCase();
@@ -81,8 +78,7 @@ export default function AdminDashboard() {
     return matchesSearch && matchesLocation;
   });
 
-  // --- 5. RECHARTS GRAPH ENGINE COMPILER ---
-  // Chart A: Applications Distribution Volume Matrix
+  // --- 6. VISUAL DATA DATASET MATRIX GENERATORS (RECHARTS) ---
   const barChartData = jobs.map((job, index) => {
     const jobTitle = job.title || job.designation || job.role || `Job #${index + 1}`;
     const matchCount = applications.filter(app => {
@@ -93,7 +89,6 @@ export default function AdminDashboard() {
     return { name: jobTitle, Applications: matchCount };
   });
 
-  // Chart B: Geographic Proportions Slices Matrix
   const locationCounts = jobs.reduce((acc, job) => {
     const cityKey = job.location || job.city || 'Remote';
     acc[cityKey] = (acc[cityKey] || 0) + 1;
@@ -105,79 +100,58 @@ export default function AdminDashboard() {
     value: locationCounts[city]
   }));
 
-  const COLORS = ['#2e6da4', '#4caf50', '#ff9800', '#9c27b0', '#e74c3c', '#00bcd4'];
+  const COLORS = ['#2e6da4', '#4caf50', '#ff9800', '#9c27b0', '#e74c3c'];
 
   return (
     <div style={styles.dashboardContainer}>
-      {/* --- SIDEBAR WORKSPACE LEFT --- */}
+      {/* --- SIDEBAR PANEL WORKSPACE --- */}
       <aside style={styles.sidebar}>
         <div style={styles.sidebarBrand}>
-          <h2 style={{ margin: 0, fontSize: '1.4rem' }}>HireFlow Portal</h2>
+          <h2 style={{ margin: 0, fontSize: '1.4rem' }}>HireFlow Admin</h2>
         </div>
         <nav style={styles.sidebarMenu}>
-          <a href="#dashboard" style={{ ...styles.sidebarLink, ...styles.sidebarLinkActive }}>
-            📊 Dashboard
-          </a>
-          <a href="#jobs" style={styles.sidebarLink}>
-            💼 Jobs & Applicants
-          </a>
-          <a href="#analytics" style={styles.sidebarLink}>
-            📈 Analytics
-          </a>
-          <a href="#settings" style={styles.sidebarLink}>
-            ⚙️ Settings
-          </a>
+          <a href="#dashboard" style={{ ...styles.sidebarLink, ...styles.sidebarLinkActive }}>📊 Dashboard</a>
+          <a href="#jobs" style={styles.sidebarLink}>💼 Jobs & Applicants</a>
+          <a href="#analytics" style={styles.sidebarLink}>📈 Analytics</a>
         </nav>
       </aside>
 
-      {/* --- MAIN MAIN AREA RIGHT --- */}
+      {/* --- MAIN CORE PANEL WORKSPACE --- */}
       <div style={styles.mainLayout}>
         <header style={styles.navbar}>
-          <h1 style={{ margin: 0, fontSize: '1.4rem', color: '#2c3e50' }}>Admin Analytics Dashboard</h1>
+          <h1 style={{ margin: 0, fontSize: '1.4rem', color: '#2c3e50' }}>Admin Analytics Control Panel</h1>
           <div style={styles.navProfile}>
-            <span style={{ fontWeight: 500 }}>Welcome, Admin</span>
-            <button style={styles.logoutBtn} onClick={() => alert('Logging out...')}>Logout</button>
+            <span>Welcome, Admin</span>
+            <button style={styles.logoutBtn}>Logout</button>
           </div>
         </header>
 
         <main style={styles.contentWrapper}>
-          {/* --- TOP ROW STAT CARDS (KPI BLOCK) --- */}
+          {/* --- KPI STAT CARDS DISPLAY ROWS --- */}
           <section style={styles.statCardsContainer}>
             <div style={{ ...styles.card, ...styles.cardBlue }}>
-              <div>
-                <h3 style={styles.cardHeader}>Total Jobs</h3>
-                <p style={styles.cardMetric}>{totalJobsCount}</p>
-              </div>
+              <div><h3 style={styles.cardHeader}>Total Jobs</h3><p style={styles.cardMetric}>{totalJobsCount}</p></div>
               <span style={styles.cardIcon}>💼</span>
             </div>
             <div style={{ ...styles.card, ...styles.cardGreen }}>
-              <div>
-                <h3 style={styles.cardHeader}>Applications</h3>
-                <p style={styles.cardMetric}>{totalAppsCount}</p>
-              </div>
+              <div><h3 style={styles.cardHeader}>Applications</h3><p style={styles.cardMetric}>{totalAppsCount}</p></div>
               <span style={styles.cardIcon}>📄</span>
             </div>
             <div style={{ ...styles.card, ...styles.cardPurple }}>
-              <div>
-                <h3 style={styles.cardHeader}>Registered Users</h3>
-                <p style={styles.cardMetric}>{totalUsersCount}</p>
-              </div>
+              <div><h3 style={styles.cardHeader}>Registered Users</h3><p style={styles.cardMetric}>{totalUsersCount}</p></div>
               <span style={styles.cardIcon}>👥</span>
             </div>
             <div style={{ ...styles.card, ...styles.cardRed }}>
-              <div>
-                <h3 style={styles.cardHeader}>Active Openings</h3>
-                <p style={styles.cardMetric}>{activeJobsCount}</p>
-              </div>
+              <div><h3 style={styles.cardHeader}>Active Openings</h3><p style={styles.cardMetric}>{activeJobsCount}</p></div>
               <span style={styles.cardIcon}>🔥</span>
             </div>
           </section>
 
-          {/* --- MIDDLE INTERACTIVE CONTROL TOOLBAR --- */}
+          {/* --- INTERACTIVE STAT FILTERS TOOLBAR --- */}
           <section style={styles.filterWrapper}>
             <input
               type="text"
-              placeholder="🔍 Search jobs by title or company..."
+              placeholder="🔍 Filter matching profiles by title or enterprise..."
               style={styles.searchInput}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -194,23 +168,22 @@ export default function AdminDashboard() {
             </select>
           </section>
 
-          {/* --- BOTTOM ROW COMPONENT INTERACTIVE SPLITS --- */}
+          {/* --- SPLIT DISPLAY FLEX CONTAINER INTERACTION PANELS --- */}
           <div style={styles.bottomGrid}>
             
-            {/* LEFT AREA: INTERACTIVE CARD PROFILE FEEDS */}
+            {/* LEFT COMPONENT COLUMN: ACTIVE CARDS PROFILE SUITE */}
             <section style={styles.leftProfileArea}>
-              <h3 style={styles.sectionHeading}>Active Job Profiles & Candidates</h3>
+              <h3 style={styles.sectionHeading}>Active Post Profiles & Tracking Pipelines</h3>
               {filteredJobs.length === 0 ? (
-                <p style={{ color: '#7f8c8d', textAlign: 'center', padding: '20px' }}>No matching items located.</p>
+                <p style={{ color: '#7f8c8d', textAlign: 'center', padding: '20px' }}>No entries found inside the local workspace strings.</p>
               ) : (
                 filteredJobs.map((job, index) => {
                   const displayId = job.id || (index + 1);
                   const displayTitle = job.title || job.designation || job.role || 'Untitled Role';
-                  const displayCompany = job.company || 'Private Corporation';
+                  const displayCompany = job.company || 'Corporate Enterprise';
                   const displayLocation = job.location || job.city || 'Remote';
-                  const displaySalary = job.salary || 'Not Specified';
+                  const displaySalary = job.salary || 'Negotiable';
 
-                  // Filter applicants explicitly tied to this position title block
                   const assignedApplicants = applications.filter(app => {
                     const targetJob = app.appliedFor || app.jobTitle || '';
                     return targetJob.toLowerCase() === displayTitle.toLowerCase();
@@ -219,34 +192,30 @@ export default function AdminDashboard() {
                   return (
                     <div key={displayId} style={styles.jobCard}>
                       <div style={styles.jobCardMainInfo}>
-                        <div style={styles.avatarBubble}>
-                          {displayTitle.substring(0, 2).toUpperCase()}
-                        </div>
+                        <div style={styles.avatarBubble}>{displayTitle.substring(0, 2).toUpperCase()}</div>
                         <div style={{ flex: 1 }}>
-                          <h4 style={{ margin: '0 0 4px 0', color: '#2c3e50' }}>{displayTitle}</h4>
-                          <p style={{ margin: '0 0 4px 0', color: '#7f8c8d', fontSize: '0.9rem' }}>
+                          <h4 style={{ margin: '0 0 4px 0', color: '#2c3e50', fontSize: '1.05rem' }}>{displayTitle}</h4>
+                          <p style={{ margin: '0 0 4px 0', color: '#7f8c8d', fontSize: '0.88rem' }}>
                             🏢 {displayCompany} • 📍 {displayLocation} • 💰 {displaySalary}
                           </p>
                         </div>
                         <div style={styles.actionBtnGroup}>
-                          <button style={styles.editBtn} onClick={() => alert(`Editing Job #${displayId}`)}>Edit</button>
+                          <button style={styles.editBtn} onClick={() => alert(`Editing profile data hook: #${displayId}`)}>Edit</button>
                           <button style={styles.deleteBtn} onClick={() => handleDeleteJob(displayId)}>Delete</button>
                         </div>
                       </div>
 
-                      {/* Nested Candidate Sub-lists block matching Video Interface */}
+                      {/* Nest candidate data lists cleanly below individual cards */}
                       <div style={styles.applicantBadgeSection}>
-                        <h5 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', color: '#34495e' }}>
-                          Applicants Assigned ({assignedApplicants.length})
+                        <h5 style={{ margin: '0 0 6px 0', fontSize: '0.82rem', color: '#34495e' }}>
+                          Candidates Applied ({assignedApplicants.length})
                         </h5>
                         {assignedApplicants.length === 0 ? (
-                          <p style={{ margin: 0, fontSize: '0.8rem', color: '#95a5a6', fontStyle: 'italic' }}>
-                            No candidates applied yet.
-                          </p>
+                          <p style={{ margin: 0, fontSize: '0.78rem', color: '#95a5a6', fontStyle: 'italic' }}>No active applicants linked to this title.</p>
                         ) : (
                           <div style={styles.badgeWrapper}>
                             {assignedApplicants.map((app, i) => (
-                              <div key={i} style={styles.applicantBadge} title={app.email || 'No Email'}>
+                              <div key={i} style={styles.applicantBadge}>
                                 <div style={styles.miniAvatar}>{(app.name || app.applicantName || 'A').charAt(0)}</div>
                                 <span>{app.name || app.applicantName || 'Anonymous'}</span>
                               </div>
@@ -260,18 +229,17 @@ export default function AdminDashboard() {
               )}
             </section>
 
-            {/* RIGHT AREA: GRAPH METRICS DISPLAY ENGINE */}
+            {/* RIGHT COMPONENT COLUMN: RECHARTS GRAPH ENGINE MODULES */}
             <section style={styles.rightChartsArea}>
-              
               <div style={styles.chartBox}>
-                <h4 style={styles.chartTitle}>Job Applications Analytics</h4>
-                <div style={{ width: '100%', height: 220 }}>
+                <h4 style={styles.chartTitle}>Job Applications Volume Matrix</h4>
+                <div style={{ width: '100%', height: 210 }}>
                   <ResponsiveContainer>
                     <BarChart data={barChartData}>
-                      <XAxis dataKey="name" stroke="#7f8c8d" fontSize={11} tickLine={false} />
-                      <YAxis allowDecimals={false} stroke="#7f8c8d" fontSize={11} />
+                      <XAxis dataKey="name" stroke="#7f8c8d" fontSize={10} tickLine={false} />
+                      <YAxis allowDecimals={false} stroke="#7f8c8d" fontSize={10} />
                       <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Bar dataKey="Applications" fill="#2e6da4" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -279,31 +247,23 @@ export default function AdminDashboard() {
               </div>
 
               <div style={styles.chartBox}>
-                <h4 style={styles.chartTitle}>Jobs Distributed by Location</h4>
-                <div style={{ width: '100%', height: 220 }}>
+                <h4 style={styles.chartTitle}>Geographic Allocations Matrix</h4>
+                <div style={{ width: '100%', height: 210 }}>
                   <ResponsiveContainer>
                     <PieChart>
-                      <Pie
-                        data={pieChartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
-                        paddingAngle={3}
-                        dataKey="value"
-                      >
+                      <Pie data={pieChartData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value">
                         {pieChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Legend wrapperStyle={{ fontSize: 10 }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
-
             </section>
+
           </div>
         </main>
       </div>
@@ -311,237 +271,45 @@ export default function AdminDashboard() {
   );
 }
 
-// --- 6. CLEAN INTEGRATED STYLING SYSTEM DICTIONARY ---
+// --- 7. EXTERNALIZED HOOK ARCHITECTURE CSS MODULES ---
 const styles = {
-  dashboardContainer: {
-    display: 'flex',
-    height: '100vh',
-    width: '100vw',
-    fontFamily: "'Segoe UI', Roboto, sans-serif",
-    backgroundColor: '#f4f6f9',
-    overflow: 'hidden'
-  },
-  sidebar: {
-    width: '240px',
-    backgroundColor: '#1e2229',
-    color: '#ecf0f1',
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  sidebarBrand: {
-    padding: '24px 20px',
-    borderBottom: '1px solid #2c313c',
-    textAlign: 'center'
-  },
-  sidebarMenu: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '15px 0'
-  },
-  sidebarLink: {
-    padding: '12px 20px',
-    color: '#a0aab4',
-    textDecoration: 'none',
-    fontSize: '0.95rem',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    transition: 'all 0.2s'
-  },
-  sidebarLinkActive: {
-    color: '#fff',
-    backgroundColor: '#2c313c',
-    borderLeft: '4px solid #2e6da4'
-  },
-  mainLayout: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden'
-  },
-  navbar: {
-    height: '65px',
-    backgroundColor: '#fff',
-    borderBottom: '1px solid #e2e8f0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'between',
-    padding: '0 25px',
-    justifyContent: 'space-between'
-  },
-  navProfile: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-    fontSize: '0.95rem',
-    color: '#34495e'
-  },
-  logoutBtn: {
-    backgroundColor: '#e74c3c',
-    color: 'white',
-    border: 'none',
-    padding: '6px 14px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    fontWeight: 600
-  },
-  contentWrapper: {
-    flex: 1,
-    padding: '25px',
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '25px'
-  },
-  statCardsContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: '20px'
-  },
-  card: {
-    padding: '20px',
-    borderRadius: '8px',
-    color: 'white',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.04)'
-  },
+  dashboardContainer: { display: 'flex', height: '100vh', width: '100vw', backgroundColor: '#f4f6f9', overflow: 'hidden' },
+  sidebar: { width: '230px', backgroundColor: '#1e2229', color: '#ecf0f1', display: 'flex', flexDirection: 'column' },
+  sidebarBrand: { padding: '20px 15px', borderBottom: '1px solid #2c313c', textAlign: 'center' },
+  sidebarMenu: { display: 'flex', flexDirection: 'column', padding: '10px 0' },
+  sidebarLink: { padding: '12px 20px', color: '#a0aab4', textDecoration: 'none', fontSize: '0.92rem', display: 'flex', alignItems: 'center' },
+  sidebarLinkActive: { color: '#fff', backgroundColor: '#2c313c', borderLeft: '4px solid #2e6da4' },
+  mainLayout: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  navbar: { height: '60px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'between', padding: '0 25px', justifyContent: 'space-between' },
+  navProfile: { display: 'flex', alignItems: 'center', gap: '15px', fontSize: '0.9rem' },
+  logoutBtn: { backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '5px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' },
+  contentWrapper: { flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' },
+  statCardsContainer: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' },
+  card: { padding: '15px 20px', borderRadius: '6px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   cardBlue: { backgroundColor: '#2e6da4' },
   cardGreen: { backgroundColor: '#27ae60' },
   cardPurple: { backgroundColor: '#8e44ad' },
   cardRed: { backgroundColor: '#d35400' },
-  cardHeader: { margin: '0 0 6px 0', fontSize: '0.9rem', fontWeight: 400, opacity: 0.9, textTransform: 'uppercase' },
-  cardMetric: { margin: 0, fontSize: '2rem', fontWeight: 700 },
-  cardIcon: { fontSize: '2.2rem', opacity: 0.3 },
-  filterWrapper: {
-    display: 'flex',
-    gap: '15px'
-  },
-  searchInput: {
-    flex: 1,
-    padding: '10px 15px',
-    borderRadius: '6px',
-    border: '1px solid #cbd5e1',
-    fontSize: '0.95rem',
-    outline: 'none'
-  },
-  filterDropdown: {
-    width: '180px',
-    padding: '10px',
-    borderRadius: '6px',
-    border: '1px solid #cbd5e1',
-    backgroundColor: 'white',
-    fontSize: '0.95rem',
-    outline: 'none'
-  },
-  bottomGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1.2fr 0.8fr',
-    gap: '25px',
-    alignItems: 'start'
-  },
-  leftProfileArea: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '20px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px'
-  },
-  sectionHeading: { margin: '0 0 5px 0', color: '#2c3e50', fontSize: '1.15rem' },
-  jobCard: {
-    border: '1px solid #e2e8f0',
-    borderRadius: '6px',
-    padding: '15px',
-    backgroundColor: '#fff',
-    transition: 'box-shadow 0.2s'
-  },
-  jobCardMainInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-    borderBottom: '1px dashed #e2e8f0',
-    paddingBottom: '12px'
-  },
-  avatarBubble: {
-    width: '45px',
-    height: '45px',
-    borderRadius: '50%',
-    backgroundColor: '#eef2f7',
-    color: '#2e6da4',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 'bold',
-    fontSize: '1rem'
-  },
-  actionBtnGroup: {
-    display: 'flex',
-    gap: '8px'
-  },
-  editBtn: {
-    backgroundColor: '#3498db',
-    color: 'white',
-    border: 'none',
-    padding: '5px 12px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '0.8rem'
-  },
-  deleteBtn: {
-    backgroundColor: '#e74c3c',
-    color: 'white',
-    border: 'none',
-    padding: '5px 12px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '0.8rem'
-  },
-  applicantBadgeSection: {
-    marginTop: '10px'
-  },
-  badgeWrapper: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '8px',
-    marginTop: '5px'
-  },
-  applicantBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    backgroundColor: '#f1f5f9',
-    padding: '4px 10px',
-    borderRadius: '20px',
-    fontSize: '0.8rem',
-    color: '#475569',
-    border: '1px solid #e2e8f0'
-  },
-  miniAvatar: {
-    width: '18px',
-    height: '18px',
-    borderRadius: '50%',
-    backgroundColor: '#2e6da4',
-    color: 'white',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.65rem',
-    fontWeight: 'bold'
-  },
-  rightChartsArea: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '25px'
-  },
-  chartBox: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '20px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-  },
-  chartTitle: { margin: '0 0 15px 0', color: '#2c3e50', fontSize: '1rem', fontWeight: 600 }
+  cardHeader: { margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 400, opacity: 0.9 },
+  cardMetric: { margin: 0, fontSize: '1.8rem', fontWeight: 700 },
+  cardIcon: { fontSize: '2rem', opacity: 0.3 },
+  filterWrapper: { display: 'flex', gap: '15px' },
+  searchInput: { flex: 1, padding: '8px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' },
+  filterDropdown: { width: '170px', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem' },
+  bottomGrid: { display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '20px', alignItems: 'start' },
+  leftProfileArea: { backgroundColor: 'white', borderRadius: '6px', padding: '15px', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  sectionHeading: { margin: '0 0 5px 0', color: '#2c3e50', fontSize: '1.05rem', fontWeight: 600 },
+  jobCard: { border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px', backgroundColor: '#fff' },
+  jobCardMainInfo: { display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '10px' },
+  avatarBubble: { width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#eef2f7', color: '#2e6da4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' },
+  actionBtnGroup: { display: 'flex', gap: '6px' },
+  editBtn: { backgroundColor: '#3498db', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' },
+  deleteBtn: { backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' },
+  applicantBadgeSection: { marginTop: '8px' },
+  badgeWrapper: { display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' },
+  applicantBadge: { display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '15px', fontSize: '0.75rem', color: '#475569' },
+  miniAvatar: { width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#2e6da4', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 'bold' },
+  rightChartsArea: { display: 'flex', flexDirection: 'column', gap: '20px' },
+  chartBox: { backgroundColor: 'white', borderRadius: '6px', padding: '15px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  chartTitle: { margin: '0 0 10px 0', color: '#2c3e50', fontSize: '0.92rem', fontWeight: 600 }
 };
