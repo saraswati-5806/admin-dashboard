@@ -7,70 +7,100 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ DARK MODE STATE FIX
+  const [darkMode, setDarkMode] = useState(() => {
+    return JSON.parse(localStorage.getItem("hireflow_darkmode") || "false");
+  });
+
+  // ✅ Persist dark mode
+  useEffect(() => {
+    localStorage.setItem("hireflow_darkmode", JSON.stringify(darkMode));
+  }, [darkMode]);
+
   useEffect(() => {
     const user = storage.getCurrentUser();
+
     if (user) {
-      // Standardize role to title-case when restoring session
-      const formattedRole = 
-        user.role?.toLowerCase() === "employer" || user.role?.toLowerCase() === "admin" 
-          ? "Employer" 
+      const formattedRole =
+        user.role?.toLowerCase() === "employer" ||
+        user.role?.toLowerCase() === "admin"
+          ? "Employer"
           : "Candidate";
+
       setCurrentUser({ ...user, role: formattedRole });
     }
+
     setLoading(false);
   }, []);
 
   const login = (email, password) => {
-    // 1. Master Developer Bypass (Works even if localStorage is completely empty)
     if (email === "emp123@nova.com" && password === "emp123") {
-      const adminUser = { 
+      const adminUser = {
         id: "admin_dev",
         name: "Employer1",
-        email: email, 
-        role: "Employer", // Force Employer layout access
-        clearance: "Employer" 
+        email: email,
+        role: "Employer",
+        clearance: "Employer"
       };
+
       storage.setCurrentUser(adminUser);
       setCurrentUser(adminUser);
-      return true; 
+
+      return true;
     }
 
-    // 2. Standard Query Lookup against registered storage users array
-    const storedUsers = JSON.parse(localStorage.getItem("hireflow_users") || "[]");
+    const storedUsers = JSON.parse(
+      localStorage.getItem("hireflow_users") || "[]"
+    );
+
     const foundUser = storedUsers.find(
       (u) => u.email === email && u.password === password
     );
 
     if (foundUser) {
-      // Force title-case immediately upon entering application pipeline
-      const formattedRole = foundUser.role?.toLowerCase() === "employer" ? "Employer" : "Candidate";
-      const updatedUser = { ...foundUser, role: formattedRole };
-      
+      const formattedRole =
+        foundUser.role?.toLowerCase() === "employer"
+          ? "Employer"
+          : "Candidate";
+
+      const updatedUser = {
+        ...foundUser,
+        role: formattedRole
+      };
+
       storage.setCurrentUser(updatedUser);
       setCurrentUser(updatedUser);
+
       return true;
     }
 
-    // Return false if no credentials match so your Login page can show the error alert
     return false;
   };
 
   const signup = (userData) => {
-    const storedUsers = JSON.parse(localStorage.getItem("hireflow_users") || "[]");
-    
+    const storedUsers = JSON.parse(
+      localStorage.getItem("hireflow_users") || "[]"
+    );
+
     const newUser = {
       id: "user_" + Math.random().toString(36).substr(2, 9),
       name: userData.name,
       email: userData.email,
       password: userData.password,
-      role: userData.role.toLowerCase(), // stored lowercase in user DB
-      company: userData.role.toLowerCase() === "employer" ? "NovaSpark Solutions" : ""
+      role: userData.role.toLowerCase(),
+      company:
+        userData.role.toLowerCase() === "employer"
+          ? "NovaSpark Solutions"
+          : ""
     };
 
     storedUsers.push(newUser);
-    localStorage.setItem("hireflow_users", JSON.stringify(storedUsers));
-    
-    // Log them in automatically by passing credentials to our updated handler
+
+    localStorage.setItem(
+      "hireflow_users",
+      JSON.stringify(storedUsers)
+    );
+
     login(newUser.email, newUser.password);
   };
 
@@ -80,7 +110,18 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        login,
+        signup,
+        logout,
+
+        // ✅ FIX
+        darkMode,
+        setDarkMode
+      }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

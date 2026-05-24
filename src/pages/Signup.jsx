@@ -13,12 +13,34 @@ export default function Signup() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+
     try {
       setError("");
-      signup({ name, email, password, role: role.toLowerCase() }); // 🌟 Forced to lowercase
-      navigate("/dashboard");
+
+      // Finalize account production allocation matrix values
+      signup({
+        name,
+        email,
+        password,
+        role: role.toLowerCase() // 🌟 Forced to lowercase
+      });
+
+      // Retrieve the freshly generated account matrix registration token from persistence
+      const storedUser = JSON.parse(
+        localStorage.getItem("currentUser")
+      );
+
+      // Branching delivery engine based on custom role mapping credentials
+      if (storedUser && (storedUser.role === "Employer" || storedUser.role === "employer")) {
+        navigate("/dashboard");
+      } else {
+        navigate("/jobs");
+      }
+
     } catch (err) {
-      setError(err.message || "Failed to finalize account generation process.");
+      setError(
+        err.message || "Failed to create account."
+      );
     }
   };
 

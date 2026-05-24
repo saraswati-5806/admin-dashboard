@@ -7,8 +7,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard"; 
 import Dashboard from "./pages/Dashboard";
-import JobDetail from "./pages/JobDetail"; 
-import Admin from "./pages/AdminDashboard";        
+import JobDetail from "./pages/JobDetail";       
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -28,9 +27,8 @@ function AppContent() {
           <Route path="/jobs/:id" element={<JobDetail />} /> 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           
+          {/* 🏢 Protected Employer Dashboard Workspace */}
           <Route 
             path="/dashboard" 
             element={
@@ -40,9 +38,45 @@ function AppContent() {
             } 
           />
           
-          <Route path="/applicants" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/jobs-posted" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/my-applications" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          {/* 📊 Brand New Feature: Protected Admin Dashboard Analytics Workspace */}
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* 👥 Protected Applicants Grid View */}
+          <Route 
+            path="/applicants" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* 📋 Protected Employer Job Posting Grid View */}
+          <Route 
+            path="/jobs-posted" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* 📥 Protected Candidate Application Tracking Pipeline */}
+          <Route 
+            path="/my-applications" 
+            element={
+              <ProtectedRoute>
+                <Jobs />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </main>
       

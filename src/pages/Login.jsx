@@ -10,19 +10,28 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLoginSubmit = (e) => {
-  e.preventDefault();
-  
-  // Call the updated login context function
-  const isSuccess = login(email, password); 
-  
-  if (isSuccess) {
-    // Redirect cleanly into your workspace hub dashboard layout!
-    navigate("/dashboard"); 
-  } else {
-    // Triggers your warning alert text component
-    setError("Invalid email address or matching security password parameters."); 
-  }
-};
+    e.preventDefault();
+
+    // Call the updated login context function
+    const isSuccess = login(email, password);
+
+    if (isSuccess) {
+      // Retrieve the freshly authenticated user context matrix from persistence
+      const storedUser = JSON.parse(
+        localStorage.getItem("currentUser")
+      );
+
+      // Branching route delivery engine based on authenticated user permissions
+      if (storedUser && storedUser.role === "Employer") {
+        navigate("/dashboard");
+      } else {
+        navigate("/jobs");
+      }
+    } else {
+      // Triggers your warning alert text component
+      setError("Invalid email address or password.");
+    }
+  };
 
   return (
     <div style={{ maxWidth: "400px", margin: "4rem auto", padding: "2rem", background: "#ffffff", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }} className="form">

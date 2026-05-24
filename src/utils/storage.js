@@ -86,7 +86,7 @@ export function addJob(jobData) {
   const jobs = getJobs();
   const newJob = {
     ...jobData,
-    id: "job_" + Math.random().toString(36).substr(2, 9),
+    id: "job_" + Math.random().toString(36).substring(2, 11),
     createdAt: new Date().toISOString()
   };
   jobs.push(newJob);
