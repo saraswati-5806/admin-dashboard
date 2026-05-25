@@ -48,6 +48,23 @@ export function AuthProvider({ children }) {
   };
 
   const login = (email, password) => {
+    // 🎯 CRITICAL FIX: Intercept static developer credentials to match seeded database constraints
+    if (email === "emp123@nova.com" && password === "emp123") {
+      const adminUser = {
+        id: "user_emp_1", // Restores structural binding to your 22 default jobs
+        name: "Employer1",
+        email: email,
+        role: "Employer",
+        clearance: "Employer",
+        company: "NovaSpark Solutions"
+      };
+
+      storage.setCurrentUser(adminUser);
+      setCurrentUser(adminUser);
+      return adminUser;
+    }
+
+    // Dynamic user lookup pipeline
     const users = JSON.parse(
       localStorage.getItem("hireflow_users") ||
         "[]"
@@ -69,7 +86,6 @@ export function AuthProvider({ children }) {
     };
 
     storage.setCurrentUser(loggedInUser);
-
     setCurrentUser(loggedInUser);
 
     return loggedInUser;

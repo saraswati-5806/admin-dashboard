@@ -57,7 +57,7 @@ export default function Navbar() {
             <Link to="/dashboard" style={{ color: darkMode ? "#f8fafc" : "#334155", textDecoration: "none", fontWeight: "500" }}>Employer Panel</Link>
             
             {/* SAFELY PRESERVED ADMIN DASHBOARD PORTAL LINK ACCESSIBILITY HOOK */}
-            <Link to="/admin" style={{ 
+            <Link to="/admin-dashboard" style={{ 
               padding: '0.4rem 1rem', 
               color: '#2e6da4', 
               fontWeight: 'bold', 
