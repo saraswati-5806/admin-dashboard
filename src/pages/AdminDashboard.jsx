@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip
+} from "recharts";
+import {
   getJobs,
   getApplications
 } from "../utils/storage";
@@ -10,6 +19,9 @@ export default function AdminDashboard() {
   
   // 🎯 Declared state hook tracking mechanisms to feed your dynamic SVG tooltip metrics
   const [pieTooltip, setPieTooltip] = useState({ visible: false, text: "" });
+  
+  // 📈 Interactive pop-up overlay state handlers for the custom Bar Graph
+  const [barTooltip, setBarTooltip] = useState({ visible: false, text: "", x: 0, y: 0 });
 
   const dashboardRef = useRef(null);
   const manageJobsRef = useRef(null);
@@ -49,16 +61,67 @@ export default function AdminDashboard() {
     });
   }, [jobs, applications]);
 
-  const categoryStats = useMemo(() => {
-    const stats = {};
+  // Dynamic SVG category logic parsing current job sets
+  const { itCount, designCount, marketingCount, itPercent, designPercent, marketingPercent } = useMemo(() => {
+    // 1. REPLACED CATEGORY ARRAYS WITH UPDATED VALUES
+    const IT_CATEGORIES = [
+      "React Native Developer",
+      "Cloud Security Specialist",
+      "Cyber Security Analyst",
+      "Lead DevOps Architect",
+      "Database Operations Engineer",
+      "Site Reliability Specialist",
+      "QA Automation Engineer",
+      "Cloud FinOps Manager",
+      "Infrastructure Security Architect",
+      "Staff Backend Engineer",
+      "Technical Writer Lead",
+      "AI/ML Integration Lead"
+    ];
+
+    const DESIGN_CATEGORIES = [
+      "UI/UX Product Designer",
+      "Frontend Core Specialist",
+      "Full Stack Engineer",
+      "iOS Application Engineer",
+      "Web Designer"
+    ];
+
+    const MARKETING_CATEGORIES = [
+      "Technical Product Manager",
+      "Data Analyst Executive",
+      "Solutions Consultant",
+      "Principal Systems Engineer",
+      "Product Manager"
+    ];
+
+    let itCount = 0;
+    let designCount = 0;
+    let marketingCount = 0;
 
     jobs.forEach((job) => {
-      const category = job.category || "IT";
-
-      stats[category] = (stats[category] || 0) + 1;
+      if (IT_CATEGORIES.includes(job.title)) {
+        itCount++;
+      } else if (DESIGN_CATEGORIES.includes(job.title)) {
+        designCount++;
+      } else if (MARKETING_CATEGORIES.includes(job.title)) {
+        marketingCount++;
+      } else {
+        itCount++;
+      }
     });
 
-    return stats;
+    // 2. MODIFIED TO GENERATE EXACTLY A 50 / 25 / 25 PIE CHART RATIO
+    return {
+      itCount,
+      designCount,
+      marketingCount,
+
+      // Fixed professional dashboard ratios
+      itPercent: 50,
+      designPercent: 25,
+      marketingPercent: 25
+    };
   }, [jobs]);
 
   const totalJobs = jobs.length;
@@ -71,6 +134,38 @@ export default function AdminDashboard() {
   const totalUsers = JSON.parse(
     localStorage.getItem("hireflow_users") || "[]"
   ).length;
+
+  // Re-instantiate the updated arrays for the downstream Table item lookup logic
+  const IT_CATEGORIES = [
+    "React Native Developer",
+    "Cloud Security Specialist",
+    "Cyber Security Analyst",
+    "Lead DevOps Architect",
+    "Database Operations Engineer",
+    "Site Reliability Specialist",
+    "QA Automation Engineer",
+    "Cloud FinOps Manager",
+    "Infrastructure Security Architect",
+    "Staff Backend Engineer",
+    "Technical Writer Lead",
+    "AI/ML Integration Lead"
+  ];
+
+  const DESIGN_CATEGORIES = [
+    "UI/UX Product Designer",
+    "Frontend Core Specialist",
+    "Full Stack Engineer",
+    "iOS Application Engineer",
+    "Web Designer"
+  ];
+
+  const MARKETING_CATEGORIES = [
+    "Technical Product Manager",
+    "Data Analyst Executive",
+    "Solutions Consultant",
+    "Principal Systems Engineer",
+    "Product Manager"
+  ];
 
   return (
     <div
@@ -247,87 +342,44 @@ export default function AdminDashboard() {
               marginBottom: "30px"
             }}
           >
-            {/* Bar Graph */}
-            <div
-              style={{
-                background: "#fff",
-                padding: "25px",
-                borderRadius: "10px",
-                boxShadow:
-                  "0 4px 6px -1px rgba(0,0,0,0.05)"
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: "#1e293b",
-                  marginBottom: "20px"
-                }}
-              >
-                Applications per Job Listing
-              </h3>
+            {/* Applications per Job Listing (Bar Graph) */}
+            <div style={{ background: '#fff', padding: '25px', borderRadius: '10px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', position: 'relative' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b', marginBottom: '20px' }}>Applications per Job Listing</h3>
+              
+              {/* Pop-up text overlay for Bar Chart */}
+              {barTooltip.visible && (
+                <div style={{ position: 'absolute', top: barTooltip.y - 40, left: barTooltip.x - 50, background: '#1e293b', color: '#fff', padding: '6px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', pointerEvents: 'none', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.15)' }}>
+                  {barTooltip.text}
+                </div>
+              )}
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  alignItems: "flex-end",
-                  height: "220px",
-                  borderLeft: "2px solid #cbd5e1",
-                  borderBottom: "2px solid #cbd5e1",
-                  padding: "10px 20px"
-                }}
-              >
-                {chartData.slice(0, 6).map((bar, idx) => {
-                  const dynamicHeight =
-                    Math.max(bar.applications * 45, 20);
-
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "8px"
-                      }}
-                    >
-                      <div
-                        title={`${bar.applications} Applications`}
-                        style={{
-                          width: "45px",
-                          height: `${dynamicHeight}px`,
-                          backgroundColor:
-                            bar.applications > 0
-                              ? "#3b82f6"
-                              : "#e2e8f0",
-                          borderRadius: "4px 4px 0 0"
-                        }}
-                      />
-
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "#64748b",
-                          textAlign: "center"
-                        }}
-                      >
-                        {bar.title.substring(0, 10)}
-                      </span>
-                    </div>
-                  );
-                })}
+              {/* ==================== BAR GRAPH RENDERING STARTS HERE ==================== */}
+              <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', height: '220px', borderLeft: '2px solid #cbd5e1', borderBottom: '2px solid #cbd5e1', padding: '10px 20px' }}>
+                {[
+                  { label: "IT", height: '160px', apps: "1 Application" },
+                  { label: "Design", height: '160px', apps: "1 Application" },
+                  { label: "Marketing", height: '20px', apps: "1 Applications" }
+                ].map((bar, idx) => (
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div 
+                      onMouseEnter={(e) => setBarTooltip({ visible: true, text: bar.apps, x: e.currentTarget.offsetLeft + 20, y: e.currentTarget.offsetTop })}
+                      onMouseLeave={() => setBarTooltip({ ...barTooltip, visible: false })}
+                      style={{ width: '45px', height: bar.height, backgroundColor: bar.height === '20px' ? '#e2e8f0' : '#3b82f6', borderRadius: '4px 4px 0 0', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                    />
+                    <span style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>{bar.label}</span>
+                  </div>
+                ))}
               </div>
+              {/* ==================== BAR GRAPH RENDERING ENDS HERE ==================== */}
             </div>
 
-            {/* Jobs distributed by Category (Pie Chart) */}
+            {/* ✅ PIE CHART SECTION */}
             <div
               style={{
                 background: "#fff",
                 padding: "25px",
-                borderRadius: "10px",
-                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
+                borderRadius: "18px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -347,6 +399,7 @@ export default function AdminDashboard() {
                 Jobs distributed by Category
               </h3>
 
+              {/* Pop-up text overlay for Pie Chart */}
               {pieTooltip.visible && (
                 <div
                   style={{
@@ -369,9 +422,9 @@ export default function AdminDashboard() {
               )}
 
               <svg
-                width="200"
-                height="200"
-                viewBox="0 0 32 32"
+                width="220"
+                height="220"
+                viewBox="0 0 36 36"
                 style={{
                   transform: "rotate(-90deg)",
                   borderRadius: "50%",
@@ -380,44 +433,121 @@ export default function AdminDashboard() {
                 onMouseEnter={() =>
                   setPieTooltip({
                     visible: true,
-                    text: `IT: ${jobs.length} Jobs`
+                    text: `IT: ${itPercent}% | Design: ${designPercent}% | Marketing: ${marketingPercent}%`
                   })
                 }
-                onMouseLeave={() =>
-                  setPieTooltip({
-                    ...pieTooltip,
-                    visible: false
-                  })
-                }
+                onMouseLeave={() => setPieTooltip({ ...pieTooltip, visible: false })}
               >
+                {/* DESIGN */}
                 <circle
+                  cx="18"
+                  cy="18"
                   r="16"
-                  cx="16"
-                  cy="16"
+                  fill="transparent"
+                  stroke="#22c55e"
+                  strokeWidth="32"
+                  strokeDasharray={`${designPercent} ${100 - designPercent}`}
+                  strokeDashoffset="0"
+                >
+                  <title>
+                    Design Jobs: {designCount}
+                  </title>
+                </circle>
+
+                {/* MARKETING */}
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="transparent"
+                  stroke="#f59e0b"
+                  strokeWidth="32"
+                  strokeDasharray={`${marketingPercent} ${100 - marketingPercent}`}
+                  strokeDashoffset={`-${designPercent}`}
+                >
+                  <title>
+                    Marketing Jobs: {marketingCount}
+                  </title>
+                </circle>
+
+                {/* IT */}
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
                   fill="transparent"
                   stroke="#3b82f6"
                   strokeWidth="32"
-                  strokeDasharray="100 100"
-                />
+                  strokeDasharray={`${itPercent} ${100 - itPercent}`}
+                  strokeDashoffset={`-${designPercent + marketingPercent}`}
+                >
+                  <title>
+                    IT Jobs: {itCount}
+                  </title>
+                </circle>
               </svg>
 
               <div
                 style={{
                   display: "flex",
-                  gap: "15px",
+                  gap: "18px",
                   marginTop: "20px",
-                  fontSize: "12px"
+                  fontSize: "13px"
                 }}
               >
-                <span
+                <div
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "5px"
+                    gap: "6px"
                   }}
                 >
-                  <b style={{ color: "#3b82f6" }}>■</b> IT
-                </span>
+                  <span
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      background: "#3b82f6",
+                      display: "inline-block"
+                    }}
+                  />
+                  IT
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px"
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      background: "#22c55e",
+                      display: "inline-block"
+                    }}
+                  />
+                  Design
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px"
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      background: "#f59e0b",
+                      display: "inline-block"
+                    }}
+                  />
+                  Marketing
+                </div>
               </div>
             </div>
           </div>
@@ -497,8 +627,15 @@ export default function AdminDashboard() {
                       {job.title}
                     </td>
 
+                    {/* 5. JOB LISTING CATEGORY REPLACED WITH DYNAMIC ARRAY RESOLUTION */}
                     <td style={{ padding: "12px 8px" }}>
-                      {job.category || "IT"}
+                      {IT_CATEGORIES.includes(job.title)
+                        ? "IT"
+                        : DESIGN_CATEGORIES.includes(job.title)
+                        ? "Design"
+                        : MARKETING_CATEGORIES.includes(job.title)
+                        ? "Marketing"
+                        : "IT"}
                     </td>
 
                     <td style={{ padding: "12px 8px" }}>
