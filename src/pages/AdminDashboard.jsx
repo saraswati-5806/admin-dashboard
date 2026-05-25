@@ -7,6 +7,9 @@ import {
 export default function AdminDashboard() {
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
+  
+  // 🎯 Declared state hook tracking mechanisms to feed your dynamic SVG tooltip metrics
+  const [pieTooltip, setPieTooltip] = useState({ visible: false, text: "" });
 
   const dashboardRef = useRef(null);
   const manageJobsRef = useRef(null);
@@ -318,14 +321,17 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Pie Chart */}
+            {/* Jobs distributed by Category (Pie Chart) */}
             <div
               style={{
                 background: "#fff",
                 padding: "25px",
                 borderRadius: "10px",
-                boxShadow:
-                  "0 4px 6px -1px rgba(0,0,0,0.05)"
+                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                position: "relative"
               }}
             >
               <h3
@@ -333,36 +339,85 @@ export default function AdminDashboard() {
                   fontSize: "16px",
                   fontWeight: "bold",
                   color: "#1e293b",
-                  marginBottom: "20px"
+                  marginBottom: "15px",
+                  width: "100%",
+                  textAlign: "left"
                 }}
               >
                 Jobs distributed by Category
               </h3>
 
+              {pieTooltip.visible && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "45%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    background: "#1e293b",
+                    color: "#fff",
+                    padding: "6px 12px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    pointerEvents: "none",
+                    zIndex: 10
+                  }}
+                >
+                  {pieTooltip.text}
+                </div>
+              )}
+
+              <svg
+                width="200"
+                height="200"
+                viewBox="0 0 32 32"
+                style={{
+                  transform: "rotate(-90deg)",
+                  borderRadius: "50%",
+                  cursor: "pointer"
+                }}
+                onMouseEnter={() =>
+                  setPieTooltip({
+                    visible: true,
+                    text: `IT: ${jobs.length} Jobs`
+                  })
+                }
+                onMouseLeave={() =>
+                  setPieTooltip({
+                    ...pieTooltip,
+                    visible: false
+                  })
+                }
+              >
+                <circle
+                  r="16"
+                  cx="16"
+                  cy="16"
+                  fill="transparent"
+                  stroke="#3b82f6"
+                  strokeWidth="32"
+                  strokeDasharray="100 100"
+                />
+              </svg>
+
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
-                  gap: "12px"
+                  gap: "15px",
+                  marginTop: "20px",
+                  fontSize: "12px"
                 }}
               >
-                {Object.entries(categoryStats).map(
-                  ([category, count]) => (
-                    <div
-                      key={category}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        background: "#f8fafc",
-                        padding: "12px",
-                        borderRadius: "8px"
-                      }}
-                    >
-                      <span>{category}</span>
-                      <strong>{count}</strong>
-                    </div>
-                  )
-                )}
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px"
+                  }}
+                >
+                  <b style={{ color: "#3b82f6" }}>■</b> IT
+                </span>
               </div>
             </div>
           </div>

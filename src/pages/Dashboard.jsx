@@ -18,6 +18,10 @@ export default function Dashboard() {
     applications: []
   });
 
+  // NEW MODAL STATES
+  const [showModal, setShowModal] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
+
   useEffect(() => {
     if (currentUser) {
       loadDashboard();
@@ -39,69 +43,6 @@ export default function Dashboard() {
     if (!confirmDelete) return;
 
     deleteJob(id);
-    loadDashboard();
-  };
-
-  const handleEditJob = (job, e) => {
-    e.stopPropagation();
-
-    const updatedTitle =
-      prompt("Edit Job Title", job.title) || job.title;
-
-    const updatedLocation =
-      prompt("Edit Location", job.location) || job.location;
-
-    const updatedSalary =
-      prompt("Edit Salary", job.salary) || job.salary;
-
-    const updatedDescription =
-      prompt("Edit Description", job.description) ||
-      job.description;
-
-    updateJob({
-      ...job,
-      title: updatedTitle,
-      location: updatedLocation,
-      salary: updatedSalary,
-      description: updatedDescription
-    });
-
-    loadDashboard();
-  };
-
-  const handleAddJob = () => {
-    const title = prompt("Enter Job Title");
-
-    if (!title) return;
-
-    const location =
-      prompt("Enter Location") || "Remote";
-
-    const salary =
-      prompt("Enter Salary Package") || "Negotiable";
-
-    const description =
-      prompt("Enter Job Description") ||
-      "No description provided.";
-
-    const category =
-      prompt("Enter Category (IT / Design / Marketing)") ||
-      "IT";
-
-    const newJob = {
-      title,
-      location,
-      salary,
-      description,
-      category,
-      company: currentUser.company || "NovaSpark Solutions",
-      requirements: [],
-      postedBy: currentUser.id,
-      status: "ACTIVE"
-    };
-
-    addJob(newJob);
-
     loadDashboard();
   };
 
@@ -153,8 +94,12 @@ export default function Dashboard() {
             </p>
           </div>
 
+          {/* UPDATED ADD JOB BUTTON */}
           <button
-            onClick={handleAddJob}
+            onClick={() => {
+              setEditingJob(null);
+              setShowModal(true);
+            }}
             style={{
               backgroundColor: "#0ea5e9",
               color: "#fff",
@@ -165,7 +110,7 @@ export default function Dashboard() {
               cursor: "pointer"
             }}
           >
-            ➕ Add New Job
+            ➕ Inject New Job Listing
           </button>
         </div>
 
@@ -325,10 +270,13 @@ export default function Dashboard() {
                       gap: "8px"
                     }}
                   >
+                    {/* UPDATED EDIT BUTTON */}
                     <button
-                      onClick={(e) =>
-                        handleEditJob(job, e)
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingJob(job);
+                        setShowModal(true);
+                      }}
                       style={{
                         backgroundColor: "#3b82f6",
                         color: "#fff",
@@ -441,6 +389,231 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* MODAL POPUP */}
+      {showModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(5px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+            padding: "20px"
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              width: "100%",
+              maxWidth: "760px",
+              borderRadius: "24px",
+              padding: "40px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+              position: "relative"
+            }}
+          >
+            {/* HEADER */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "30px"
+              }}
+            >
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: "36px",
+                  fontWeight: "bold",
+                  color: "#0f172a"
+                }}
+              >
+                {editingJob
+                  ? "🛠 Modify Existing Job Struct"
+                  : "🚀 Create New Employment Allocation Node"}
+              </h2>
+
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingJob(null);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: "32px",
+                  cursor: "pointer",
+                  color: "#64748b"
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* FORM */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                const formData = new FormData(e.target);
+
+                const jobPayload = {
+                  id: editingJob?.id,
+                  title: formData.get("title"),
+                  company: formData.get("company"),
+                  salary: formData.get("salary"),
+                  location: formData.get("location"),
+                  description: formData.get("description"),
+                  category: "IT",
+                  requirements: [],
+                  postedBy: currentUser.id,
+                  status: "ACTIVE"
+                };
+
+                if (editingJob) {
+                  updateJob(jobPayload);
+                } else {
+                  addJob(jobPayload);
+                }
+
+                loadDashboard();
+
+                setShowModal(false);
+                setEditingJob(null);
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "22px"
+                }}
+              >
+                <input
+                  name="title"
+                  defaultValue={editingJob?.title || ""}
+                  placeholder="Job Designation Title"
+                  required
+                  style={{
+                    padding: "16px",
+                    borderRadius: "12px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "16px"
+                  }}
+                />
+
+                <input
+                  name="company"
+                  defaultValue={
+                    editingJob?.company ||
+                    "NovaSpark Solutions"
+                  }
+                  placeholder="Company"
+                  required
+                  style={{
+                    padding: "16px",
+                    borderRadius: "12px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "16px"
+                  }}
+                />
+
+                <input
+                  name="salary"
+                  defaultValue={editingJob?.salary || ""}
+                  placeholder="Compensation Package Structure"
+                  required
+                  style={{
+                    padding: "16px",
+                    borderRadius: "12px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "16px"
+                  }}
+                />
+
+                <input
+                  name="location"
+                  defaultValue={editingJob?.location || ""}
+                  placeholder="Geographic Operation Bounds"
+                  required
+                  style={{
+                    padding: "16px",
+                    borderRadius: "12px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "16px"
+                  }}
+                />
+
+                <textarea
+                  name="description"
+                  rows="6"
+                  defaultValue={
+                    editingJob?.description || ""
+                  }
+                  placeholder="Job Functions Log Scope"
+                  required
+                  style={{
+                    padding: "16px",
+                    borderRadius: "12px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "16px",
+                    resize: "none"
+                  }}
+                />
+
+                {/* ACTION BUTTONS */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "15px",
+                    marginTop: "10px"
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      setEditingJob(null);
+                    }}
+                    style={{
+                      backgroundColor: "#94a3b8",
+                      color: "#fff",
+                      border: "none",
+                      padding: "14px 28px",
+                      borderRadius: "12px",
+                      fontWeight: "bold",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Abort
+                  </button>
+
+                  <button
+                    type="submit"
+                    style={{
+                      backgroundColor: "#0f766e",
+                      color: "#fff",
+                      border: "none",
+                      padding: "14px 28px",
+                      borderRadius: "12px",
+                      fontWeight: "bold",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Commit Parameters
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
