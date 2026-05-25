@@ -1,107 +1,128 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect
+} from "react";
+
 import * as storage from "../utils/storage";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] =
+    useState(null);
 
-  // ✅ DARK MODE STATE FIX
+  const [loading, setLoading] =
+    useState(true);
+
   const [darkMode, setDarkMode] = useState(() => {
-    return JSON.parse(localStorage.getItem("hireflow_darkmode") || "false");
+    return JSON.parse(
+      localStorage.getItem(
+        "hireflow_darkmode"
+      ) || "false"
+    );
   });
 
-  // ✅ Persist dark mode
   useEffect(() => {
-    localStorage.setItem("hireflow_darkmode", JSON.stringify(darkMode));
+    localStorage.setItem(
+      "hireflow_darkmode",
+      JSON.stringify(darkMode)
+    );
   }, [darkMode]);
 
   useEffect(() => {
     const user = storage.getCurrentUser();
 
     if (user) {
-      const formattedRole =
-        user.role?.toLowerCase() === "employer" ||
-        user.role?.toLowerCase() === "admin"
-          ? "Employer"
-          : "Candidate";
-
-      setCurrentUser({ ...user, role: formattedRole });
+      setCurrentUser(user);
     }
 
     setLoading(false);
   }, []);
 
+  const normalizeRole = (role) => {
+    return role?.toLowerCase() === "employer"
+      ? "Employer"
+      : "Candidate";
+  };
+
   const login = (email, password) => {
-    if (email === "emp123@nova.com" && password === "emp123") {
-      const adminUser = {
-        id: "admin_dev",
-        name: "Employer1",
-        email: email,
-        role: "Employer",
-        clearance: "Employer"
-      };
-
-      storage.setCurrentUser(adminUser);
-      setCurrentUser(adminUser);
-
-      return true;
-    }
-
-    const storedUsers = JSON.parse(
-      localStorage.getItem("hireflow_users") || "[]"
+    const users = JSON.parse(
+      localStorage.getItem("hireflow_users") ||
+        "[]"
     );
 
-    const foundUser = storedUsers.find(
-      (u) => u.email === email && u.password === password
+    const foundUser = users.find(
+      (u) =>
+        u.email === email &&
+        u.password === password
     );
 
-    if (foundUser) {
-      const formattedRole =
-        foundUser.role?.toLowerCase() === "employer"
-          ? "Employer"
-          : "Candidate";
-
-      const updatedUser = {
-        ...foundUser,
-        role: formattedRole
-      };
-
-      storage.setCurrentUser(updatedUser);
-      setCurrentUser(updatedUser);
-
-      return true;
+    if (!foundUser) {
+      return null;
     }
 
-    return false;
+    const loggedInUser = {
+      ...foundUser,
+      role: normalizeRole(foundUser.role)
+    };
+
+    storage.setCurrentUser(loggedInUser);
+
+    setCurrentUser(loggedInUser);
+
+    return loggedInUser;
   };
 
   const signup = (userData) => {
-    const storedUsers = JSON.parse(
-      localStorage.getItem("hireflow_users") || "[]"
+    const users = JSON.parse(
+      localStorage.getItem("hireflow_users") ||
+        "[]"
     );
 
+    const existingUser = users.find(
+      (u) => u.email === userData.email
+    );
+
+    if (existingUser) {
+      throw new Error(
+        "Email already registered."
+      );
+    }
+
     const newUser = {
-      id: "user_" + Math.random().toString(36).substr(2, 9),
+      id:
+        "user_" +
+        Math.random()
+          .toString(36)
+          .substring(2, 10),
+
       name: userData.name,
+
       email: userData.email,
+
       password: userData.password,
-      role: userData.role.toLowerCase(),
+
+      role: userData.role,
+
       company:
-        userData.role.toLowerCase() === "employer"
+        userData.role === "employer"
           ? "NovaSpark Solutions"
           : ""
     };
 
-    storedUsers.push(newUser);
+    users.push(newUser);
 
     localStorage.setItem(
       "hireflow_users",
-      JSON.stringify(storedUsers)
+      JSON.stringify(users)
     );
 
-    login(newUser.email, newUser.password);
+    return login(
+      userData.email,
+      userData.password
+    );
   };
 
   const logout = () => {
@@ -116,8 +137,6 @@ export function AuthProvider({ children }) {
         login,
         signup,
         logout,
-
-        // ✅ FIX
         darkMode,
         setDarkMode
       }}

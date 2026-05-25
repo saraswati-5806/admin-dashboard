@@ -84,19 +84,48 @@ export function getJobById(jobId) {
 
 export function addJob(jobData) {
   const jobs = getJobs();
+
   const newJob = {
     ...jobData,
-    id: "job_" + Math.random().toString(36).substring(2, 11),
+    id:
+      "job_" +
+      Math.random()
+        .toString(36)
+        .substring(2, 11),
+
+    category: jobData.category || "IT",
+
+    status: jobData.status || "ACTIVE",
+
     createdAt: new Date().toISOString()
   };
+
   jobs.push(newJob);
-  localStorage.setItem("hireflow_jobs", JSON.stringify(jobs));
+
+  localStorage.setItem(
+    "hireflow_jobs",
+    JSON.stringify(jobs)
+  );
+
   return newJob;
 }
 
 export function updateJob(updatedJob) {
-  const jobs = getJobs().map((j) => (j.id === updatedJob.id ? updatedJob : j));
-  localStorage.setItem("hireflow_jobs", JSON.stringify(jobs));
+  const jobs = getJobs().map((job) =>
+    job.id === updatedJob.id
+      ? {
+          ...job,
+          ...updatedJob
+        }
+      : job
+  );
+
+  localStorage.setItem(
+    "hireflow_jobs",
+    JSON.stringify(jobs)
+  );
+
+  return updatedJob;
 }
 
 export function deleteJob(jobId) {
@@ -118,9 +147,37 @@ export function getApplicationsByJob(jobId) {
 
 export function addApplication(appData) {
   const apps = getApplications();
-  const newApp = { ...appData, id: "app_" + Math.random().toString(36).substr(2, 9), appliedAt: new Date().toLocaleDateString() };
+
+  const existing = apps.find(
+    (a) =>
+      a.jobId === appData.jobId &&
+      a.candidateId === appData.candidateId
+  );
+
+  if (existing) {
+    return existing;
+  }
+
+  const newApp = {
+    ...appData,
+
+    id:
+      "app_" +
+      Math.random()
+        .toString(36)
+        .substring(2, 10),
+
+    appliedAt:
+      new Date().toLocaleDateString()
+  };
+
   apps.push(newApp);
-  localStorage.setItem("hireflow_applications", JSON.stringify(apps));
+
+  localStorage.setItem(
+    "hireflow_applications",
+    JSON.stringify(apps)
+  );
+
   return newApp;
 }
 

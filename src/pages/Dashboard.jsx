@@ -4,7 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import {
   getEmployerDashboard,
   addJob,
-  deleteJob
+  deleteJob,
+  updateJob
 } from "../utils/storage";
 
 export default function Dashboard() {
@@ -53,24 +54,17 @@ export default function Dashboard() {
     const updatedSalary =
       prompt("Edit Salary", job.salary) || job.salary;
 
-    const jobs =
-      JSON.parse(localStorage.getItem("hireflow_jobs")) || [];
+    const updatedDescription =
+      prompt("Edit Description", job.description) ||
+      job.description;
 
-    const updatedJobs = jobs.map((j) =>
-      j.id === job.id
-        ? {
-            ...j,
-            title: updatedTitle,
-            location: updatedLocation,
-            salary: updatedSalary
-          }
-        : j
-    );
-
-    localStorage.setItem(
-      "hireflow_jobs",
-      JSON.stringify(updatedJobs)
-    );
+    updateJob({
+      ...job,
+      title: updatedTitle,
+      location: updatedLocation,
+      salary: updatedSalary,
+      description: updatedDescription
+    });
 
     loadDashboard();
   };
@@ -90,11 +84,16 @@ export default function Dashboard() {
       prompt("Enter Job Description") ||
       "No description provided.";
 
+    const category =
+      prompt("Enter Category (IT / Design / Marketing)") ||
+      "IT";
+
     const newJob = {
       title,
       location,
       salary,
       description,
+      category,
       company: currentUser.company || "NovaSpark Solutions",
       requirements: [],
       postedBy: currentUser.id,
@@ -118,13 +117,14 @@ export default function Dashboard() {
       }}
     >
       <div style={{ padding: "40px" }}>
-        
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "30px"
+            marginBottom: "30px",
+            flexWrap: "wrap",
+            gap: "15px"
           }}
         >
           <div>
@@ -172,7 +172,7 @@ export default function Dashboard() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "20px",
             marginBottom: "40px"
           }}
@@ -246,7 +246,6 @@ export default function Dashboard() {
             gap: "30px"
           }}
         >
-          
           <div>
             <h3
               style={{
@@ -266,6 +265,18 @@ export default function Dashboard() {
                 gap: "12px"
               }}
             >
+              {jobs.length === 0 && (
+                <div
+                  style={{
+                    background: "#fff",
+                    padding: "20px",
+                    borderRadius: "10px"
+                  }}
+                >
+                  No jobs posted yet.
+                </div>
+              )}
+
               {jobs.map((job) => (
                 <div
                   key={job.id}
@@ -422,13 +433,12 @@ export default function Dashboard() {
                       color: "#64748b"
                     }}
                   >
-                    {app.resumeText}
+                    {app.candidateEmail}
                   </p>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
